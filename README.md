@@ -26,10 +26,10 @@ Installation
 
 * Run `pip install -r requirements.txt` to install the required packages.
 
-* Set `export FLASK_APP=roborank.py` environment variable.
+* Set `export FLASK_APP=main.py` environment variable.
 
 * Run `flask run` to start the application.
 
-* Navigate to `http://localhost:8900/` to use *roborank*
+* Navigate to `http://localhost:5000/` to use *roborank*
 
 ***Remember to kill all the robots with fire when you're finished!!***
