@@ -8,7 +8,9 @@ Database stuff.
 import sqlite3
 from flask import g
 
-DATABASE = '/path/to/database.db'
+from main import app
+
+DATABASE = 'roborank.db'
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -32,6 +34,6 @@ def query_db(query, args=(), one=False):
 def init_db():
     with app.app_context():
         db = get_db()
-        with app.open_resource('schema.sql', mode='r') as f:
+        with app.open_resource('roborank.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
