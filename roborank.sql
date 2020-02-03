@@ -3,8 +3,8 @@
 pragma foreign_keys=off;
 
 create table teams (
-    [teamId] integer primary key autoincrement not null,
-    [name] varchar not null
+    teamId integer primary key not null,
+    name varchar default ''
 );
 
 create table raw_scores (
@@ -17,5 +17,6 @@ create table raw_scores (
     climb integer not null check (climb in (0,1)) default 0,
     spin_by_colour integer not null check (spin_by_colour in (0,1)) default 0,
     spin_by_rotate integer not null check (spin_by_rotate in (0,1)) default 0,
-    foreign key ([teamId]) references teams([teamId]) on delete no action on update no action
+    rating varchar default '',
+    foreign key (teamId) references teams(teamId) on delete no action on update no action
 );
