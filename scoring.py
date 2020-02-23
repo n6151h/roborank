@@ -50,12 +50,11 @@ class BinaryCategoryAggregator(object):
         1: 1, 'yes': 1, 'true': 1, True: 1    
     }
     
-    def __init__(self, point_value=1):
-                    
-        self.pv = point_value
+    def __init__(self):
+        pass
         
-    def __call__(self, me, o1, o2):
+    def __call__(self, me, o1, o2, pv=1):
         
-        return self.weights[self.trans[me]][self.trans[o1]][self.trans[o2]] * self.pv
+        return self.weights[self.trans[me]][self.trans[o1]][self.trans[o2]] * pv
         
                     

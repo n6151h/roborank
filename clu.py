@@ -16,7 +16,8 @@ import logging
 logger = logging.getLogger('RoboRank-CLU')
 logger.setLevel(logging.WARNING)
 
-def calc_scores_for_round(rows, us_name="us", id_col='Team Number'):
+def calc_scores_for_round(rows, us_name="us", id_col='Team Number',
+                          point_values=None, zero_balls=0):
     """
     Calculate the scores for a given round.   Iterate through all commbinations of
     us + two other teams in the round.
@@ -25,6 +26,10 @@ def calc_scores_for_round(rows, us_name="us", id_col='Team Number'):
     """
     bca = BinaryCategoryAggregator()
     
+    # Default point values
+    if point_values is None:
+        point_values = {'Autonomous ': 1, 'Climb ': 1, 'Spinner Rotation': 1, 'Spinner Colour': 1}
+        
     # Find "us".
     us = None
     for i in range(len(rows)):
@@ -37,16 +42,22 @@ def calc_scores_for_round(rows, us_name="us", id_col='Team Number'):
     
     result = list()
     
+    # We can penalize 0 balls.
+    balls_score = lambda s: s if s > 0 else -zero_balls
+    
     # Iterate through the combination.
     # (Note: We only need to do half -- (us, 3, 4) is same as (us, 4, 3), e.g.)
     for i in range(len(rows)):
         for j in range(i+1, len(rows)):
             if us not in (i, j):
-                score = rows[i]['Balls High'] + rows[i]['Balls Low'] + \
-                    rows[j]['Balls High'] + rows[j]['Balls Low']
+                score = balls_score(rows[i]['Balls High'])
+                score += balls_score(rows[i]['Balls Low'])
+                score += balls_score(rows[j]['Balls High'])
+                score += balls_score(rows[j]['Balls Low'])
+                score += (rows[us]['Balls High'] + rows[us]['Balls Low'])
                     
                 for bc in ['Autonomous ', 'Climb ', 'Spinner Rotation', 'Spinner Colour']:
-                    score += bca(rows[us][bc], rows[i][bc], rows[j][bc])
+                    score += bca(rows[us][bc], rows[i][bc], rows[j][bc], point_values[bc])
                     
                 result.append((rows[us]['Round'], rows[us][id_col], rows[i][id_col], rows[j][id_col], score))
             
@@ -118,10 +129,30 @@ def main():
     parser.add_argument('-o', '--output', type=str, dest='outfile', help='Output to FILE')
     #parser.add_argument('--debug', action='store_true')  # just for testing purposes
     parser.add_argument('--verbose', action='store_true', default=False, dest='verbose', help="Give play-by-play of what's happening")
-    
+
+    parser.add_argument('--auto-points', dest='auto_pts', type=int, default=1,
+                        help='Autonomous operation point factor')
+    parser.add_argument('--climb-points', dest='climb_pts', type=int, default=1,
+                        help='Climb point factor')
+    parser.add_argument('--spin-rotate-points', dest='spin_rot_pts', type=int, default=1,
+                        help='Spin rotation point factor')
+    parser.add_argument('--spin-colour-points', dest='spin_col_pts', type=int, default=1,
+                        help='Spin-to-colour point factor')
+        
+    parser.add_argument('--zero-balls', dest='zero_balls', type=int, default=10,
+                        help='Number of points to subtract from score for zero (high or low) balls (default: 0)')
+
+    parser.add_argument('--format', dest='format', default='xls', type=str, metavar='FMT',
+                        choices=['xls', 'csv', 'json', 'html'],
+                        help='Output format FMT (choice of [xls], csv, json, html)')
+                        
     args = parser.parse_args()
     if args.verbose:
         logger.setLevel(logging.INFO)
+        
+    logger.info('Setting up binary point-value map')
+    point_vals = {'Autonomous ': args.auto_pts, 'Climb ': args.climb_pts, 
+                      'Spinner Colour': args.spin_col_pts, 'Spinner Rotation': args.spin_rot_pts}
         
     raw_scores = list()
     
@@ -134,7 +165,7 @@ def main():
         
         logger.info('Calculating scores')
         for r in rounds.values():
-            raw_scores.extend(calc_scores_for_round(r))
+            raw_scores.extend(calc_scores_for_round(r, point_values=point_vals, zero_balls=args.zero_balls))
     
     logger.info('Aggregating %d scores from %d rounds', len(raw_scores), len(rounds))
     result = pd.DataFrame(aggregate_scores(raw_scores), columns = ['Team Pair', 'Mean Score', 'Std Dev', 'Adj Score'])
@@ -142,7 +173,17 @@ def main():
     file_parts = os.path.splitext(args.score_files[0])
     
     logger.info('Writing results to %s-output%s', *file_parts)
-    result.to_excel("{0}-output{1}".format(*file_parts))
+    
+    if args.format == 'xls':
+        result.to_excel("{0}-output.xlsx".format(*file_parts))
+    elif args.format == 'json':
+        open('{0}-output.json'.format(*file_parts), 'w').write(result.to_json())
+    elif args.format == 'csv':
+        open('{0}-output.csv'.format(*file_parts), 'w').write(result.to_csv())
+    elif args.format == 'html':
+        open('{0}-output.html'.format(*file_parts), 'w').write(result.to_html(border=1))
+    else:
+        print('Format "{}" not supported (yet)'.format(args.format))
     
     return 0
     
