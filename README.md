@@ -26,10 +26,32 @@ Installation
 
 * Run `pip install -r requirements.txt` to install the required packages.
 
+
+Command Line Utility (CLU)
+..........................
+
+This was written mainly to test the scoring logic without having to deal with entering data into 
+the website or database.  Run `clu.py` with the `-h` or `--help` switch to see the other
+options available.
+
+Very basic usage:  `clu.py some-scoring-sheet.xlsx` will score the contents and write it to a file named 
+`some-scoring-sheet-output.xlsc`.  You can output a few other formats, too, like csv, json, and html.
+
+The spreadsheet should have 10 columns: Rating, Team Id, Team Name, Balls High, Balls Low, Spinner Colour, Spinner Rotation,
+Climb, Autonomous, and Round (number).  There may be multiple rounds in a single scoring file.
+
+
+Web App (future)
+................
+
+For now, this doesn't do much of anything. At some point in the future, I'll incorporate the classes and functions
+currently used in the CLU into the back-end of a website.
+
 * Set `export FLASK_APP=main.py` environment variable.
 
 * Run `flask run` to start the application.
 
 * Navigate to `http://localhost:5000/` to use *roborank*
+
 
 ***Remember to kill all the robots with fire when you're finished!!***
