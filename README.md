@@ -28,7 +28,7 @@ Installation
 
 
 Command Line Utility (CLU)
-..........................
+__________________________
 
 This was written mainly to test the scoring logic without having to deal with entering data into 
 the website or database.  Run `clu.py` with the `-h` or `--help` switch to see the other
@@ -42,7 +42,7 @@ Climb, Autonomous, and Round (number).  There may be multiple rounds in a single
 
 
 Web App (future)
-................
+________________
 
 For now, this doesn't do much of anything. At some point in the future, I'll incorporate the classes and functions
 currently used in the CLU into the back-end of a website.
