@@ -15,8 +15,7 @@ It is possible that a team may have already allied with someone else, so, there 
 paired it with in deriving the scores) from further consideration.
 
 
-Installation
-------------
+## Installation
 
 * Clone this repository and cd into the `roborank` directory.
 
@@ -27,8 +26,7 @@ Installation
 * Run `pip install -r requirements.txt` to install the required packages.
 
 
-Command Line Utility (CLU)
-__________________________
+### Command Line Utility (CLU)
 
 This was written mainly to test the scoring logic without having to deal with entering data into 
 the website or database.  Run `clu.py` with the `-h` or `--help` switch to see the other
@@ -41,8 +39,7 @@ The spreadsheet should have 10 columns: Rating, Team Id, Team Name, Balls High, 
 Climb, Autonomous, and Round (number).  There may be multiple rounds in a single scoring file.
 
 
-Web App (future)
-________________
+### Web App (future)
 
 For now, this doesn't do much of anything. At some point in the future, I'll incorporate the classes and functions
 currently used in the CLU into the back-end of a website.
