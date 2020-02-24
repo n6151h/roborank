@@ -14,16 +14,39 @@ a scalar value for each grouping of potential alliances which is used to sort th
 It is possible that a team may have already allied with someone else, so, there must also be a way to quickly exclude that team (and any that roborank
 paired it with in deriving the scores) from further consideration.
 
+## Pre-installation
+
+* Install python 3.6 or later on your computer, if it isn't there already.
+
+* Install virtualenv on your computer.
+
+* Create a directory to contain roborank.  
+    - linux: `mkdir ~/roborank`
+    - windows: `mkdir C:\roborank
+    
+* CD into that directory and create a virtualenv virtual environment:
+
+~~~sh
+virtualenv -p python3 venv
+~~~
+    
+* Activate the virtual environment
+    - linux: `. venv/bin/activate` 
+    - windows: `venv\Scripts\activate.bat`
+    
+    You should now see a `(venv)` prefix on your prompt.
 
 ## Installation
 
 * Clone this repository and cd into the `roborank` directory.
+~~~sh
+git clone git@github.com:n6151h/roborank.git
+~~~
 
-* Create a virtual environment: `virtualenv -p python3 venv`
-
-* Activate the virtual environment: `source venv/bin/activate`  (on windows: `venv\Scripts\activate.bat`)
-
-* Run `pip install -r requirements.txt` to install the required packages.
+* Install the python modules required
+~~~sh
+pip install -r requirements.txt
+~~~
 
 
 ### Command Line Utility (CLU)
