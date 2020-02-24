@@ -22,7 +22,7 @@ paired it with in deriving the scores) from further consideration.
 
 * Create a directory to contain roborank.  
     - linux: `mkdir ~/roborank`
-    - windows: `mkdir C:\roborank
+    - windows: `mkdir C:\roborank`
     
 * CD into that directory and create a virtualenv virtual environment:
 
