@@ -1,0 +1,53 @@
+<!doctype html>
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Competitions</h1>
+
+<div>
+    <ul>
+        {% for db, comp in competitions %}
+        <li class="compeition-link">
+            <span>
+                <a class="db-select-link" href="/a/database/set/{{comp}}">{{comp}}</a>
+                {% if db == current_db %}
+                [current]
+                {% endif %}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<p/>
+<div>
+    <button class="bg-button create-comp">New Competition</button>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script type="text/javascript">
+    
+$(function() {
+    
+    // Database selection links
+    $(".db-select-link").on('click', function() {
+        $.get({
+            "url": $(this).attr("href"),
+            "success": function() { location.reload(); },
+            "error": function() { console.log("Error! Couldn't set dataase"); }
+        });
+    });
+    
+    // Create new competition database and select it.
+    $(".create-comp").on('click', function() {
+        window.location.href = "/database/create";
+    });
+    
+});
+
+</script>
+{% endblock %}

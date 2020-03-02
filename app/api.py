@@ -1,9 +1,11 @@
-from main import app
+from app import app
 
 from flask import render_template, make_response
 from flask import request, jsonify
+from flask import session
 
-import db
+from app import db
+import os
 
 @app.route('/a/scores/', methods=['GET'])
 @app.route('/a/scores/<teamId>', methods=['GET'])
@@ -98,7 +100,7 @@ def delete_scores(teamId, roundId):
     
 @app.route('/a/teams/', methods=['GET'])
 @app.route('/a/teams/<teamId>', methods=['GET'])
-def teams(teamId=None, methods=['GET']):
+def teams_get(teamId=None, methods=['GET']):
     """
     REST endpoint fro getting team info.
     """
@@ -166,4 +168,17 @@ def delete_team(teamId):
                     'data': {}
                     })
 
+@app.route('/a/database/set/<dbName>')
+def database_set(dbName):
+    """
+    Sets working database to *dbName*.
+    """
+    dbFileName = dbName + '.db'
+    
+    if not os.path.exists(dbFileName):
+        raise(ValueError('Databbase "{}" not found.'))
+        
+    session['database_name'] = dbFileName 
+
+    return jsonify({'status': 'success', 'current_db': dbFileName})
     

@@ -11,7 +11,7 @@ from flask import flash
 import sys
 import os
 
-from main import app
+from app import app
 
 DATABASE = 'roborank'
 
@@ -35,13 +35,18 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
     
 def init_db(dbname=DATABASE):
+    global DATABASE
+    
+    import pdb; pdb.set_trace()
     if os.path.exists('{}.db'.format(dbname)):
         print('Using existing database "{}.db"'.format(dbname))
+    else:
+        sqlite3.connect(dbname + '.db').close()  # Create it.
         
     DATABASE = dbname
     with app.app_context():
         db = get_db()
-        with app.open_resource('{}.sql'.format(dbname), mode='r') as f:
+        with app.open_resource('{}.sql'.format('roborank-template'), mode='r') as f:
             try:
                 db.cursor().executescript(f.read())
                 print('Database "{}" created'.format(dbname))

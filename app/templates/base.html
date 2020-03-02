@@ -6,9 +6,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+ 
     {% block styles %}
     <!-- Bootstrap CSS -->
     {{ bootstrap.load_css() }}
+
+    <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
+
     {% endblock %}
 
     <title>Your page title</title>
@@ -23,7 +27,10 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="navbar-nav mr-auto">
             {{ render_nav_item('index', 'Home') }}
-            {{ render_nav_item('analyze', 'Analyze') }}
+            {{ render_nav_item('database', 'Competition') }}
+            {{ render_nav_item('teams', 'Team') }}
+            {{ render_nav_item('data', 'Data') }}
+            {{ render_nav_item('analyze', 'Analytics') }}
             {{ render_nav_item('about', 'About') }}
         </div>
     </nav>
@@ -48,6 +55,9 @@
     {% block scripts %}
     <!-- Optional JavaScript -->
     {{ bootstrap.load_js() }}
+    
+    <script type="text/javascript" src="/static/DataTables/datatables.min.js"></script>
+    
     {% endblock %}
   </body>
 </html>
