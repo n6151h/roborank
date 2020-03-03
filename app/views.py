@@ -73,4 +73,9 @@ def teams_create():
         
 @app.route('/data')
 def data():
+    
+    c = db.get_db()
+    r = c.execute('select * from raw_scores')
+    import pdb; pdb.set_trace()
+    
     return render_template('data.html')

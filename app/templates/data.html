@@ -4,4 +4,27 @@
 {% block content %}
 
 <h1>Raw Data</h1>
+
+<table class="scoring-raw-data-tbl">
+    <thead>
+        <tr>
+            <th>Round</th>
+            <th>Team ID</th>
+            <th>Balls (High)</th>
+            <th>Balls (Low)</th>
+            <th>Autonomous</th>
+            <th>Climb</th>
+            <th>Spinner (Colour)</th>
+            <th>Spinner (Rotate)</th>
+        </tr>
+    </thead>    
+</table>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script type="text/javascript">
+</script>
 {% endblock %}
