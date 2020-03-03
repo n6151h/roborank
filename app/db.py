@@ -37,11 +37,12 @@ def query_db(query, args=(), one=False):
 def init_db(dbname=DATABASE):
     global DATABASE
     
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
     if os.path.exists('{}.db'.format(dbname)):
         print('Using existing database "{}.db"'.format(dbname))
     else:
         sqlite3.connect(dbname + '.db').close()  # Create it.
+        print('Created database "{}"'.format(dbname))
         
     DATABASE = dbname
     with app.app_context():
@@ -49,7 +50,7 @@ def init_db(dbname=DATABASE):
         with app.open_resource('{}.sql'.format('roborank-template'), mode='r') as f:
             try:
                 db.cursor().executescript(f.read())
-                print('Database "{}" created'.format(dbname))
+                print('Database "{}" created and initialized'.format(dbname))
             except sqlite3.OperationalError as e:
                 if 'already exists' not in e.args[0]:
                     print("Couldn't create database '{0}': {1}".format(dbname, e.args[0]), file=sys.stderr)

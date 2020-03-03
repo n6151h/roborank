@@ -4,4 +4,47 @@
 {% block content %}
 
 <h1>Teams</h1>
+
+<div>
+    <ul>
+        {% for id, name in teams %}
+        <li class="team-link">
+            <span>
+                {{ id }}: {{ name }}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<p/>
+<div>
+    <button class="bg-button create-team">New Team</button>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script type="text/javascript">
+    
+$(function() {
+    
+    // Database selection links
+    $(".team-select-link").on('click', function() {
+        $.get({
+            "url": $(this).attr("href"),
+            "success": function() { location.reload(); },
+            "error": function() { console.log("Error! Couldn't set dataase"); }
+        });
+    });
+    
+    // Create new competition database and select it.
+    $(".create-team").on('click', function() {
+        window.location.href = "/teams/create";
+    });
+    
+});
+
+</script>
 {% endblock %}
