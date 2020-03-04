@@ -195,7 +195,7 @@ def database_set(dbName):
     """
     dbFileName = dbName + '.db'
     
-    if not os.path.exists(dbFileName):
+    if not os.path.exists(os.path.join(app.config['COMPETITION_DIR'], dbFileName)):
         raise(ValueError('Databbase "{}" not found.'))
         
     session['database_name'] = dbFileName 

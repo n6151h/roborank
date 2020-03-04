@@ -43,7 +43,10 @@ def database_create():
 def database():
     db_list =  [(c, c.replace('.db', '')) for c in filter(lambda x: x if x.endswith('.db') else None, os.listdir(os.path.join('.', app.config['COMPETITION_DIR'])))]
     
-    return render_template('database.html', competitions=db_list, current_db=session.get('database_name', ''))
+    if 'database_name' not in session:
+        session['database_name'] = db.DATABASE + '.db'
+        
+    return render_template('database.html', competitions=db_list, current_db=session['database_name'])
 
 @app.route('/teams')
 def teams():
