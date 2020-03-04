@@ -20,8 +20,6 @@ Bootstrap(app)
 
 from app import db
 
-#db.init_db(session.get('database_name', None))
-
 from app import views
 
 from app import api

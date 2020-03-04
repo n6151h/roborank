@@ -15,12 +15,9 @@ from app import app
 
 DATABASE = 'roborank'
 
-def get_db():
-    #db = getattr(g, '_database', None)
-    db = g._database = sqlite3.connect(os.path.join(app.config['COMPETITION_DIR'], session.get('database_name', DATABASE + '.db')))
-    db.row_factory = sqlite3.Row        
-    return db
-
+def full_db_path(dbname=DATABASE):
+    return os.path.join(app.config['COMPETITION_DIR'], session.get('database_name', dbname + '.db'))
+    
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -28,37 +25,34 @@ def close_connection(exception):
         db.close()
         
 def query_db(query, args=(), one=False):
-    #import pdb; pdb.set_trace()
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
     cur.close()
     return (rv[0] if rv else None) if one else rv
     
-def init_db(dbname=DATABASE):
+def get_db(dbname=DATABASE):
     global DATABASE
     
-    #import pdb; pdb.set_trace()
-    if os.path.exists('{}.db'.format(dbname)):
-        print('Using existing database "{}.db"'.format(dbname))
-    else:
-        sqlite3.connect(os.path.join(app.config['COMPETITION_DIR'], dbname + '.db')).close()  # Create it.
-        print('Created database "{}"'.format(dbname))
-        
     DATABASE = dbname
-    with app.app_context():
-        db = get_db()
-        with app.open_resource('{}.sql'.format('roborank-template'), mode='r') as f:
-            try:
-                db.cursor().executescript(f.read())
-                print('Database "{}" created and initialized'.format(dbname))
-            except sqlite3.OperationalError as e:
-                if 'already exists' not in e.args[0]:
-                    print("Couldn't create database '{0}': {1}".format(dbname, e.args[0]), file=sys.stderr)
-                    #flash("Couldn't create {0} database: {1}".format(dbname, e.args[0]), 'error')
-                return
-            
-        db.commit()
-        #flash('Database "{}" created'.format(dbname))
+    
+    # Does it exist yet?  If not, set a flag to initialize it ... later.
+    if not os.path.exists(full_db_path()):
+        with app.app_context():
+            db = sqlite3.connect(full_db_path())
+            with app.open_resource('{}.sql'.format('roborank-template'), mode='r') as f:
+                try:
+                    db.cursor().executescript(f.read())
+                    db.commit()
+                    print('Database "{}" created and initialized'.format(dbname))
+                except sqlite3.OperationalError as e:
+                    if 'already exists' not in e.args[0]:
+                        print("Couldn't create database '{0}': {1}".format(dbname, e.args[0]), file=sys.stderr)
+                        return
+
+    db = sqlite3.connect(full_db_path())
+    db.row_factory = sqlite3.Row
+
+    return db
 
 def row_to_dict(r):
     return dict(zip(r.keys(), r))

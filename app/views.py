@@ -75,8 +75,7 @@ def teams_create():
         
 @app.route('/data')
 def data():
-    
     c = db.get_db()
     r = c.execute('select * from raw_scores')
     
-    return render_template('data.html')
+    return render_template('data.html', dbname=session.get('database_name', 'roborank').replace('.db', ''))

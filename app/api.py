@@ -25,8 +25,6 @@ def scores(teamId=None, roundId=None):
         qs += ' and round=?'
         args.append(roundId)
         
-    #import pdb; pdb.set_trace()
-    
     if 'search[value]' in request.values and request.values['search[value]']:
         if "where" not in qs:
             qs += " where"
