@@ -25,15 +25,35 @@ def scores(teamId=None, roundId=None):
         qs += ' and round=?'
         args.append(roundId)
         
-    result = db.query_db(qs, args)
+    #import pdb; pdb.set_trace()
+    
+    if 'search[value]' in request.values and request.values['search[value]']:
+        if "where" not in qs:
+            qs += " where"
+        else:
+            qs += " and"
+        qs += " teamId like ?"
+        args.append(request.values['search[value]'] + '%')
+        
+    total_scores = db.query_db('select count(*) from raw_scores')[0]['count(*)']
+    
+    result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
+    filtered_scores = len(result)
+    
+    if 'start' in request.values:
+        result = result[int(request.values['start']):]
+    if 'length' in request.values:
+        result = result[:int(request.values['length'])]    
+        
     return jsonify({'teamId': teamId, 
                     'roundId': roundId,
                     'isJson': request.is_json,
                     'status': 'success',
                     'count': len(result),
-                    'data': {
-                        'scores': [db.row_to_dict(r) for r in result]
-                    }})
+                    'recordsTotal': total_scores,
+                    'recordsFiltered': filtered_scores,
+                    'data': result,
+                    })
     
 @app.route('/a/scores', methods=['POST'])
 def create_scores():

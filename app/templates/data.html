@@ -1,31 +1,65 @@
 <!doctype html>
 {% extends "base.html" %}
 
-{% block content %}
+{% block inner_content %}
  {{ super() }}
  
 <h1>Raw Data</h1>
 
-<table class="scoring-raw-data-tbl">
-    <thead>
-        <tr>
-            <th>Round</th>
-            <th>Team ID</th>
-            <th>Balls (High)</th>
-            <th>Balls (Low)</th>
-            <th>Autonomous</th>
-            <th>Climb</th>
-            <th>Spinner (Colour)</th>
-            <th>Spinner (Rotate)</th>
-        </tr>
-    </thead>    
-</table>
-
+<div class="container">
+    <div class="row">
+        <table class="scoring-raw-data-tbl display">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Team ID</th>
+                    <th>Balls (High)</th>
+                    <th>Balls (Low)</th>
+                    <th>Autonomous</th>
+                    <th>Climb</th>
+                    <th>Spinner (Colour)</th>
+                    <th>Spinner (Rotate)</th>
+                </tr>
+            </thead>    
+        </table>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 
 <script type="text/javascript">
+    $(".scoring-raw-data-tbl").DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": "/a/scores/",
+        "columns": [
+            {
+                "data": "round"
+            },
+            {
+                "data": "teamId"
+            },
+            {
+                "data": "high_balls"
+            },
+            {
+                "data": "low_balls"
+            },
+            {
+                "data": "autonomous"
+            },
+            {
+                "data": "climb"
+            },
+            {
+                "data": "spin_by_colour"
+            },
+            {
+                "data": "spin_by_rotate"
+            }
+        ]
+    });
 </script>
 {% endblock %}

@@ -15,6 +15,9 @@
     {{ bootstrap.load_css() }}
 
     <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/DataTables/DataTables-1.10.20/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
     <link href="/static/fontawesome/css/all.css" rel="stylesheet" />
     <link rel="stylesheet" href="/static/css/roborank.css" type="text/css" />
     
@@ -24,6 +27,10 @@
   {% endblock %}
   
   <body>
+    {% block banner %}
+    <h1 style="font: italic bold 40pt ClassicRobot;"><i class="fas fa-robot"></i> RoboRank</h1>
+    {% endblock %}
+
     <!-- navbar -->
     {% block navbar %}
 
@@ -56,7 +63,11 @@
 
     <!-- Your page content -->
     {% block content %}
-    <h1 style="font: italic bold 40pt ClassicRobot;">RoboRank</h1>
+    <div class="container">
+    {% block inner_content %}
+    {% endblock %}
+    </div>
+    
     {% endblock %}
 
     {% block scripts %}
@@ -64,6 +75,7 @@
     {{ bootstrap.load_js() }}
     
     <script type="text/javascript" src="/static/DataTables/datatables.min.js"></script>
+    <script type="text/javascript" src="/static/DataTables/DataTables-1.10.20/dataTables.bootstrap4.min.js"></script>
     
     {% endblock %}
   </body>
