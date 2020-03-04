@@ -28,7 +28,6 @@ def database_create():
     Create a new database (competition) named *dbname*.
     """
     form = CompetitionForm()
-    import pdb; pdb.set_trace()
     
     if form.validate_on_submit():
         # Process the form ...
@@ -42,7 +41,7 @@ def database_create():
     
 @app.route('/database')
 def database():
-    db_list =  [(c, c.replace('.db', '')) for c in filter(lambda x: x if x.endswith('.db') else None, os.listdir('.'))]
+    db_list =  [(c, c.replace('.db', '')) for c in filter(lambda x: x if x.endswith('.db') else None, os.listdir(os.path.join('.', app.config['COMPETITION_DIR'])))]
     
     return render_template('database.html', competitions=db_list, current_db=session.get('database_name', ''))
 
@@ -76,6 +75,5 @@ def data():
     
     c = db.get_db()
     r = c.execute('select * from raw_scores')
-    import pdb; pdb.set_trace()
     
     return render_template('data.html')

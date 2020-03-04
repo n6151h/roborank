@@ -6,18 +6,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
- 
+    <link rel="shortcut icon" href="/static/img/favicon.ico" />
+
+    <title>{% block title %}RoboRank -- Robot Competition Ranking {% endblock %}</title>
+
     {% block styles %}
     <!-- Bootstrap CSS -->
     {{ bootstrap.load_css() }}
 
     <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
-
+    <link href="/static/fontawesome/css/all.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/roborank.css" type="text/css" />
+    
     {% endblock %}
 
-    <title>Your page title</title>
-    {% endblock %}
   </head>
+  {% endblock %}
+  
   <body>
     <!-- navbar -->
     {% block navbar %}
@@ -50,7 +55,9 @@
     {% endblock %}
 
     <!-- Your page content -->
-    {% block content %}{% endblock %}
+    {% block content %}
+    <h1 style="font: italic bold 40pt ClassicRobot;">RoboRank</h1>
+    {% endblock %}
 
     {% block scripts %}
     <!-- Optional JavaScript -->

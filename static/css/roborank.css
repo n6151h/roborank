@@ -1,0 +1,7 @@
+
+@font-face {
+  font-family: 'ClassicRobot';
+  src: url('/static/fonts/ClassicRobot-BoldItalic.woff') format('woff'),
+       url('/static/fonts/ClassicRobot-BoldItalic.woff2') format('woff2'),
+       url('/static/fonts/ClassicRobot-BoldItalic.tff') format('truetype');
+}

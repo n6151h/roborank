@@ -18,7 +18,7 @@ DATABASE = 'roborank'
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE + '.db')
+        db = g._database = sqlite3.connect(os.path.join(app.config['COMPETITION_DIR'], DATABASE + '.db'))
     db.row_factory = sqlite3.Row        
     return db
 
@@ -41,7 +41,7 @@ def init_db(dbname=DATABASE):
     if os.path.exists('{}.db'.format(dbname)):
         print('Using existing database "{}.db"'.format(dbname))
     else:
-        sqlite3.connect(dbname + '.db').close()  # Create it.
+        sqlite3.connect(os.path.join(app.config['COMPETITION_DIR'], dbname + '.db')).close()  # Create it.
         print('Created database "{}"'.format(dbname))
         
     DATABASE = dbname
