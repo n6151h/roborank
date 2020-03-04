@@ -8,20 +8,23 @@
 
 <div class="container">
     <div class="row">
-        <table class="scoring-raw-data-tbl display">
-            <thead>
-                <tr>
-                    <th>Round</th>
-                    <th>Team ID</th>
-                    <th>Balls (High)</th>
-                    <th>Balls (Low)</th>
-                    <th>Autonomous</th>
-                    <th>Climb</th>
-                    <th>Spinner (Colour)</th>
-                    <th>Spinner (Rotate)</th>
-                </tr>
-            </thead>    
-        </table>
+        <div class="col-md-12 table-responsive-md">
+            <table class="scoring-raw-data-tbl table-striped">
+                <thead>
+                    <tr>
+                        <th>Round</th>
+                        <th>Team ID</th>
+                        <th>Balls (High)</th>
+                        <th>Balls (Low)</th>
+                        <th>Autonomous</th>
+                        <th>Climb</th>
+                        <th>Spinner (Colour)</th>
+                        <th>Spinner (Rotate)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>    
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -36,28 +39,31 @@
         "ajax": "/a/scores/",
         "columns": [
             {
-                "data": "round"
+                "data": "round", "className": "dt-body-right"
             },
             {
                 "data": "teamId"
             },
             {
-                "data": "high_balls"
+                "data": "high_balls", "className": "dt-body-right"
             },
             {
-                "data": "low_balls"
+                "data": "low_balls", "className": "dt-body-right"
             },
             {
-                "data": "autonomous"
+                "data": "autonomous", "className": "dt-body-right"
             },
             {
-                "data": "climb"
+                "data": "climb", "className": "dt-body-right"
             },
             {
-                "data": "spin_by_colour"
+                "data": "spin_by_colour", "className": "dt-body-right"
             },
             {
-                "data": "spin_by_rotate"
+                "data": "spin_by_rotate", "className": "dt-body-right"
+            },
+            {
+                "data": null
             }
         ]
     });

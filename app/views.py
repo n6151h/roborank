@@ -16,7 +16,7 @@ def index():
     
 @app.route('/analyze')
 def analyze():
-    return render_template('analyze.html')
+    return render_template('analyze.html', dbname=db.DATABASE)
     
 @app.route('/about')
 def about():

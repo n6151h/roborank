@@ -4,5 +4,56 @@
 {% block inner_content %}
 
 {{ super() }}
-<h1>Analytics</h1>
+<h1>Analytics for <span style="font-style: italic; text-decoration: underline; color: green;">{{ dbname }}</span> Competition</h1>
+
+<div class="container" style="width: 100%;">
+    <div class="row">
+        <div class="colmd-4" style="background-color: lightblue;" name="an-menu-div">
+            <ul>
+                <li><a href="">Alliance Rankings</a></li>
+            </ul>
+        </div>
+        <div class="col-md-8" name="an-main-div">
+            <div class="table-responsive-md">
+                <table class="ranking-tbl table-striped">
+                    <thead>
+                        <tr>
+                            <th>Alliance</th>
+                            <th>Mean Ranking</th>
+                            <th>Standard Deviation</th>
+                            <th>Adjusted Ranking</th>
+                        </tr>
+                    </thead>    
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script type="text/javascript">
+    $(".ranking-tbl").DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": "/a/ranking",
+        "searching": false
+,        "columns": [
+            {
+                "data": "ally_pair"
+            },
+            {
+                "data": "mean_rank", "class_name": "dt-body-right"
+            },
+            {
+                "data": "std_dev", "className": "dt-body-right"
+            },
+            {
+                "data": "adj_rank", "className": "dt-body-right"
+            }
+        ]
+    });
+</script>
 {% endblock %}

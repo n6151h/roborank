@@ -200,3 +200,43 @@ def database_set(dbName):
 
     return jsonify({'status': 'success', 'current_db': dbFileName})
     
+    
+@app.route('/a/ranking/', methods=['GET'])
+def ranking():
+    """
+    REST endpoint for getting ranking.
+    """
+    
+    # Get the scores.  Exclude teams already selected unless otherwise specified.
+    qs = "select * from raw_scores"
+    if request.values.get('all_teams', 't') != 't':
+        qs += " where teamId in (select teamId from teams where exclude = 'f')"
+
+    # Filter, if specified.        
+    if 'search[value]' in request.values and request.values['search[value]']:
+        pass  # place-holder for now.
+
+    raw_scores = db.query_db(qs, dict())
+            
+    #total_ranking = db.query_db(')[0]['count(*)']
+    
+    #result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
+    #filtered_ranking = len(result)
+    result = list()
+
+    total_ranking = len(raw_scores)
+    filtered_ranking = len(raw_scores)
+    
+    if 'start' in request.values:
+        result = result[int(request.values['start']):]
+    if 'length' in request.values:
+        result = result[:int(request.values['length'])]    
+        
+    return jsonify({
+                    'isJson': request.is_json,
+                    'status': 'success',
+                    'count': len(result),
+                    'recordsTotal': total_ranking,
+                    'recordsFiltered': filtered_ranking,
+                    'data': result,
+                    })    

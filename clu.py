@@ -16,8 +16,11 @@ import logging
 logger = logging.getLogger('RoboRank-CLU')
 logger.setLevel(logging.WARNING)
 
-def calc_scores_for_round(rows, us_name="us", id_col='Team Number',
-                          point_values=None, zero_balls=0):
+def calc_scores_for_round(rows, us_id="us", id_col='Team Name',
+                          point_values=None, zero_balls=0,
+                          balls_low_col='Balls Low', balls_high_col='Balls High',
+                          auto_col='Autonomous ', climb_col='Climb ', spin_clr_col='Spinner Colour',
+                          spin_rot_col='Spinner Rotation', round_col='Round'):
     """
     Calculate the scores for a given round.   Iterate through all commbinations of
     us + two other teams in the round.
@@ -28,12 +31,12 @@ def calc_scores_for_round(rows, us_name="us", id_col='Team Number',
     
     # Default point values
     if point_values is None:
-        point_values = {'Autonomous ': 1, 'Climb ': 1, 'Spinner Rotation': 1, 'Spinner Colour': 1}
+        point_values =  {auto_col: 1, climb_col: 1, spin_rot_col: 1, spin_clr_col: 1}
         
     # Find "us".
     us = None
     for i in range(len(rows)):
-        if rows[i]['Team Name'] == us_name:
+        if rows[i][id_col] == us_id:
             us = i
             break
             
@@ -50,20 +53,20 @@ def calc_scores_for_round(rows, us_name="us", id_col='Team Number',
     for i in range(len(rows)):
         for j in range(i+1, len(rows)):
             if us not in (i, j):
-                score = balls_score(rows[i]['Balls High'])
-                score += balls_score(rows[i]['Balls Low'])
-                score += balls_score(rows[j]['Balls High'])
-                score += balls_score(rows[j]['Balls Low'])
-                score += (rows[us]['Balls High'] + rows[us]['Balls Low'])
+                score = balls_score(rows[i][balls_high_col])
+                score += balls_score(rows[i][balls_low_col])
+                score += balls_score(rows[j][balls_high_col])
+                score += balls_score(rows[j][balls_low_col])
+                score += (rows[us][balls_high_col] + rows[us][balls_low_col])
                     
-                for bc in ['Autonomous ', 'Climb ', 'Spinner Rotation', 'Spinner Colour']:
+                for bc in point_values.keys():
                     score += bca(rows[us][bc], rows[i][bc], rows[j][bc], point_values[bc])
                     
-                result.append((rows[us]['Round'], rows[us][id_col], rows[i][id_col], rows[j][id_col], score))
+                result.append((rows[us][round_col], rows[us][id_col], rows[i][id_col], rows[j][id_col], score))
             
     return result
     
-def split_into_rounds(scores):
+def split_into_rounds(scores, round_col='Round'):
     """
     Takes a list of dicts, or a pandas DataFrame
     each list containinig scores for a given round.
