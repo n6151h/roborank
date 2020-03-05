@@ -53,7 +53,7 @@ def teams():
     conn = db.get_db()
     result = conn.execute('select * from teams')
     teams = [(x['teamId'], x['name'] or '(no name)') for x in result.fetchall()]
-    return render_template('teams.html', teams=teams)
+    return render_template('teams.html', teams=teams, my_team=session.get('my-team'))
     
 @app.route('/teams/create', methods=['GET', 'POST'])
 def teams_create():

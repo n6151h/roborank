@@ -85,7 +85,6 @@ def create_scores():
     return jsonify({
                     'isJson': request.is_json,
                     'status': 'success',
-                    'count': 1,
                     'data': {
                         'teamId': teamId, 'roundId': roundId, 
                         'low_balls': low_balls, 'high_balls': high_balls,
@@ -116,9 +115,8 @@ def delete_scores(teamId, roundId):
 
      
     
-@app.route('/a/teams/', methods=['GET'])
-@app.route('/a/teams/<teamId>', methods=['GET'])
-def teams_get(teamId=None, methods=['GET']):
+@app.route('/a/teams', methods=['GET'])
+def teams_get():
     """
     REST endpoint fro getting team info.
     """
@@ -126,20 +124,70 @@ def teams_get(teamId=None, methods=['GET']):
     qs = "select * from teams"
     args = list()
     
-    if teamId is not None:
-        qs += ' where teamId=?'
-        args.append(teamId)
-        
-    result = db.query_db(qs, args)
-    return jsonify({'teamId': teamId, 
+    result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
+    recordsTotal = len(result)
+    
+    if 'start' in request.values:
+        result = result[int(request.values['start']):]
+    if 'length' in request.values:
+        result = result[:int(request.values['length'])]    
+
+    return jsonify({
                     'isJson': request.is_json,
                     'status': 'success',
-                    'count': len(result),
-                    'data': {
-                        'teams': [ db.row_to_dict(r) for r in result]
-                    }})
+                    'recordsTotal': recordsTotal,
+                    'recordsFiltered': recordsTotal,
+                    'data': result
+                    })
    
+@app.route('/a/teams/<teamId>/tog-ex', methods=['GET', 'POST'])
+def teams_toggle_exclude(teamId):
+    """
+    Endpoint for deleting a team.
+    """
+
+    try:
+        dc = db.get_db()
+        cur = dc.cursor()
+        cur.execute('select * from teams where teamId=?', [int(teamId)])
+        team = cur.fetchone()
+        cur.execute('update teams set exclude=? where teamId=?', [0 if team['exclude'] != 0 else 1, teamId])
+        xx = cur.fetchall()
+        dc.commit()
+        dc.close()
+    except Exception as e:
+        return jsonify({ 'status': 'error', 'message': e.args[0]}, code=500)
     
+    return jsonify({'status': 'success'})
+        
+@app.route('/a/teams/<teamId>/my-team', methods=['GET', 'POST'])
+def teams_set_my_team(teamId):
+    """
+    Endpoint for deleting a team.
+    """
+
+    session['my-team'] = teamId
+    
+    return jsonify({'status': 'success'})
+        
+    
+@app.route('/a/teams/<teamId>', methods=['DELETE'])
+def teams_delete(teamId):
+    """
+    Endpoint for deleting a team.
+    """
+
+    try:
+        dc = db.get_db()
+        cur = dc.cursor()
+        cur.execute('delete from teams where teamId=?', [int(teamId)])
+        dc.commit()
+        dc.close()
+    except Exception as e:
+        return jsonify({ 'status': 'error', 'message': e.args[0]}, code=500)
+    
+    return jsonify({'status': 'success'})
+
 @app.route('/a/teams', methods=['POST'])
 def create_team():
     """
@@ -217,9 +265,9 @@ def ranking():
         pass  # place-holder for now.
 
     raw_scores = db.query_db(qs, dict())
-            
-    #total_ranking = db.query_db(')[0]['count(*)']
-    
+
+    # Get my team ID.
+    my_id = db.query_db('select teamId from teams where ')
     #result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
     #filtered_ranking = len(result)
     result = list()

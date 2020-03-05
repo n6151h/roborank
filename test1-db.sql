@@ -1,23 +1,32 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
+
+CREATE TABLE properties (
+    name varchar not null,
+    value varchar default ''
+);
+
 CREATE TABLE teams (
     teamId integer primary key not null,
-    name varchar default ''
+    name varchar default '',
+    exclude int not null default 0
 );
-INSERT INTO teams VALUES(1456,'');
-INSERT INTO teams VALUES(2132,'');
-INSERT INTO teams VALUES(2342,'');
-INSERT INTO teams VALUES(3135,'');
-INSERT INTO teams VALUES(3575,'');
-INSERT INTO teams VALUES(4367,'');
-INSERT INTO teams VALUES(4567,'');
-INSERT INTO teams VALUES(5648,'');
-INSERT INTO teams VALUES(5668,'');
-INSERT INTO teams VALUES(5788,'');
-INSERT INTO teams VALUES(6666,'');
-INSERT INTO teams VALUES(6794,'');
-INSERT INTO teams VALUES(8305,'');
-INSERT INTO teams VALUES(8487,'');
+
+INSERT INTO teams (teamId, name) VALUES(1456,'');
+INSERT INTO teams (teamId, name) VALUES(2132,'');
+INSERT INTO teams (teamId, name) VALUES(2342,'');
+INSERT INTO teams (teamId, name) VALUES(3135,'');
+INSERT INTO teams (teamId, name) VALUES(3575,'');
+INSERT INTO teams (teamId, name) VALUES(4367,'');
+INSERT INTO teams (teamId, name) VALUES(4567,'');
+INSERT INTO teams (teamId, name) VALUES(5648,'');
+INSERT INTO teams (teamId, name) VALUES(5668,'');
+INSERT INTO teams (teamId, name) VALUES(5788,'');
+INSERT INTO teams (teamId, name) VALUES(6666,'');
+INSERT INTO teams (teamId, name) VALUES(6794,'');
+INSERT INTO teams (teamId, name) VALUES(8305,'');
+INSERT INTO teams (teamId, name) VALUES(8487,'');
+
 CREATE TABLE raw_scores (
     scoreId integer primary key autoincrement not null,
     teamId integer not null,
@@ -31,6 +40,7 @@ CREATE TABLE raw_scores (
     rating varchar default '',
     foreign key (teamId) references teams(teamId) on delete no action on update no action
 );
+
 INSERT INTO raw_scores VALUES(107,3135,1,6,15,1,1,1,1,'GOOD TEAM ');
 INSERT INTO raw_scores VALUES(108,5788,1,10,10,1,1,0,0,'GOOD TEAM ');
 INSERT INTO raw_scores VALUES(109,4567,1,5,12,1,1,1,1,'GOOD TEAM ');

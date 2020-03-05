@@ -2,9 +2,15 @@
 
 pragma foreign_keys=off;
 
-create table teams (
+CREATE TABLE properties (
+    name varchar not null,
+    value varchar default ''
+);
+
+CREATE TABLE teams (
     teamId integer primary key not null,
-    name varchar default ''
+    name varchar default '',
+    exclude int not null default 0
 );
 
 create table raw_scores (

@@ -7,16 +7,16 @@
 
 <h1>Teams</h1>
 
-<div>
-    <ul>
-        {% for id, name in teams %}
-        <li class="team-link">
-            <span>
-                {{ id }}: {{ name }}
-            </span>
-        </li>
-        {% endfor %}
-    </ul>
+<div class="row table-responsive-md">
+    <table class="team-tbl table-striped">
+        <thead>
+            <th>Team ID</th>
+            <th>Team Name</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </div>
 <p/>
 <div>
@@ -45,7 +45,104 @@ $(function() {
     $(".create-team").on('click', function() {
         window.location.href = "/teams/create";
     });
+
+    $(".team-tbl").DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": "/a/teams",
+        "columns": [
+            {
+                "data": null, "className": "text-md-left",
+                "render": function(x) {
+                    if (x.exclude == 1) {
+                        return '<span style="text-decoration: line-through;" excluded="true">'+x.teamId+'</span>';
+                    } else {
+                        return '<span excluded="false">' + x.teamId + '</span> &nbsp;' + (x.teamId == '{{ my_team }}' ? '<i class="fa fa-user-check" style="color: green;"></i>' : '');
+                    }
+                }
+            },
+            {
+                "data": null, "className": "text-md-center",
+                "render": function(x) {
+                    if (x.exclude) {
+                        return '<span style="text-decoration: line-through;">'+x.name+'</span>';
+                    } else {
+                        return '' + x.name + (x.my_team ? '<i class="fa fa-user-check" style="color: green;"></i>' :'');
+                    }
+                }
+            },
+            {
+                "data": null, "className": "text-md-center",
+                "render": function (x) { 
+                    var actions = '';
+                    
+                    if (x.exclude == 1) {
+                        actions = actions + '<i class="fa fa-user-check" team-id="'+x.teamId+'" style="color: lightgray;" excluded="true" title="disabled"></i>' +
+                            '&nbsp;&nbsp;&nbsp;&nbsp;' +                    
+                            '<i class="fa fa-trash" team-id="'+x.teamId+'" style="color: blue;" title="delete team"></i>';
+                    } else {
+                        actions = actions + '<i class="fa fa-user-check" team-id="'+x.teamId+'" style="color: green;" excluded="false" title="set as my team"></i>' +
+                            '&nbsp;&nbsp;&nbsp;&nbsp;' +                    
+                            '<i class="fa fa-trash" team-id="'+x.teamId+'" style="color: blue;" title="delete team"></i>';
+                    }
+                    
+                    if (! x.my_team) {
+                        actions = '<i class="fa fa-ban" team-id="'+x.teamId+'" style="color: red;" title="exclude team"></i>' + 
+                            '&nbsp;&nbsp;&nbsp;&nbsp;' + actions;
+                    }       
+                    return actions;            
+                }
+            }
+        ]
+     });  
     
+    $("body").on('click', 'i.fa-trash', function(evt) {
+        $.ajax({
+            "url": "/a/teams/"+$(this).attr("team-id"),
+            "method": "delete",
+            "success": function(d, s, j) {
+                location.reload();
+            },
+            "error": function(j, s, e) {
+                console.log("failed: "+ e);
+            }
+        })
+        //console.log("trash "+$(this).attr("team-id")+" clicked");
+    })
+    
+    $("body").on('click', 'i.fa-ban', function(evt) {
+        if ($(this).attr("team-id") == '{{ my_team }}') {
+            alert("You can't exclude your own team!");
+            return;
+        }
+        
+        $.ajax({
+            "url": "/a/teams/"+$(this).attr("team-id")+'/tog-ex',
+            "success": function(d, s, j) {
+                location.reload();
+            },
+            "error": function(j, s, e) {
+                console.log("failed: "+ e);
+            }
+        })
+    })
+    
+    $("body").on('click', 'i.fa-user-check', function(evt) {
+        if ($(this).attr("excluded") == 'true') {
+            alert("You can't set your team to one that's excluded.")
+            return;
+        }
+
+        $.ajax({
+            "url": "/a/teams/"+$(this).attr("team-id")+'/my-team',
+            "success": function(d, s, j) {
+                location.reload();
+            },
+            "error": function(j, s, e) {
+                console.log("failed: "+ e);
+            }
+        })    
+    })
 });
 
 </script>
