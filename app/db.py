@@ -15,8 +15,11 @@ from app import app
 
 DATABASE = 'roborank'
 
-def full_db_path(dbname=DATABASE):
-    return os.path.join(app.config['COMPETITION_DIR'], session.get('database_name', dbname + '.db'))
+def full_db_path(dbname=None):
+    if dbname is None:
+        dbname = DATABASE
+        
+    return os.path.join(app.config['COMPETITION_DIR'], dbname + '.db')
     
 @app.teardown_appcontext
 def close_connection(exception):
@@ -30,9 +33,12 @@ def query_db(query, args=(), one=False):
     cur.close()
     return (rv[0] if rv else None) if one else rv
     
-def get_db(dbname=DATABASE):
+def get_db(dbname=None):
     global DATABASE
     
+    if dbname is None:
+        dbname = DATABASE
+        
     DATABASE = dbname
     
     # Does it exist yet?  If not, set a flag to initialize it ... later.

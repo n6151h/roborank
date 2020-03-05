@@ -31,7 +31,12 @@ def database_create():
     
     if form.validate_on_submit():
         # Process the form ...
-        db.init_db(form.data['name'])
+        
+        # Need to save whatever the current dbname is as get_db will change this.
+        cur_db = db.DATABASE
+        db.get_db(form.data['name'])
+        db.get_db(cur_db)  # change it back.
+        
         return redirect('/database')
         
     # New database(?)
@@ -53,7 +58,7 @@ def teams():
     conn = db.get_db()
     result = conn.execute('select * from teams')
     teams = [(x['teamId'], x['name'] or '(no name)') for x in result.fetchall()]
-    return render_template('teams.html', teams=teams, my_team=session.get('my-team'))
+    return render_template('teams.html', teams=teams, my_team=session.get('my-team'), dbname=db.DATABASE)
     
 @app.route('/teams/create', methods=['GET', 'POST'])
 def teams_create():

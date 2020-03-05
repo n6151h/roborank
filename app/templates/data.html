@@ -42,7 +42,14 @@
                 "data": "round", "className": "text-md-center"
             },
             {
-                "data": "teamId"
+                "data": null,
+                "render": function(x) {
+                    if (x.exclude == 1) {
+                        return '<span style="text-decoration: line-through;">'+x.teamId+'</span>';
+                    } else {
+                        return x.teamId;
+                    }
+                }
             },
             {
                 "data": "high_balls", "className": "text-md-center"
@@ -63,7 +70,10 @@
                 "data": "spin_by_rotate", "className": "text-md-center"
             },
             {
-                "data": null
+                "data": null,
+                "render": function(x) {
+                    return '';
+                }
             }
         ]
     });

@@ -15,11 +15,11 @@ def scores(teamId=None, roundId=None):
     REST endpoint for getting raw scores.
     """
     
-    qs = 'select * from raw_scores'
+    qs = 'select * from raw_scores inner join teams on raw_scores.teamId = teams.teamId'
     args = list()
     
     if teamId is not None:
-        qs += " where teamId=?"
+        qs += " where raw_scores.teamId=?"
         args.append(teamId)
     if roundId is not None:
         qs += ' and round=?'
@@ -30,7 +30,7 @@ def scores(teamId=None, roundId=None):
             qs += " where"
         else:
             qs += " and"
-        qs += " teamId like ?"
+        qs += " raw_scores.teamId like ?"
         args.append(request.values['search[value]'] + '%')
         
     total_scores = db.query_db('select count(*) from raw_scores')[0]['count(*)']
@@ -244,6 +244,7 @@ def database_set(dbName):
     if not os.path.exists(os.path.join(app.config['COMPETITION_DIR'], dbFileName)):
         raise(ValueError('Databbase "{}" not found.'))
         
+    db.get_db(dbName)
     session['database_name'] = dbFileName 
 
     return jsonify({'status': 'success', 'current_db': dbFileName})
