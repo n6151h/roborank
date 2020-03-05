@@ -16,7 +16,8 @@ paired it with in deriving the scores) from further consideration.
 
 ## Pre-installation
 
-* Install python 3.6 or later on your computer, if it isn't there already.
+* Install python 3.6 or later (I used 3.8) on your computer, if it isn't there already. 
+    If you're doing this on Windows, make sure to check the box that asks if you want to add this to your `PATH`.
 
 * Install virtualenv on your computer.
 
@@ -27,14 +28,15 @@ paired it with in deriving the scores) from further consideration.
 * CD into that directory and create a virtualenv virtual environment:
 
 ~~~sh
-virtualenv -p python3 venv
+virtualenv  venv
 ~~~
     
 * Activate the virtual environment
     - linux: `. venv/bin/activate` 
-    - windows: `venv\Scripts\activate.bat`
+    - windows (cmd.exe): `venv\Scripts\activate.bat`
+    - windows (powershell): `venv\Scripts\activate.ps1` 
     
-    You should now see a `(venv)` prefix on your prompt.
+    You should now see a `(venv)` prefix on your prompt.  (Note: You might not. Try running `python` and make sure it's the version you think you installed.)
 
 ## Installation
 
@@ -67,11 +69,21 @@ Climb, Autonomous, and Round (number).  There may be multiple rounds in a single
 For now, this doesn't do much of anything. At some point in the future, I'll incorporate the classes and functions
 currently used in the CLU into the back-end of a website.
 
-* Set `export FLASK_APP=main.py` environment variable.
+* Set the `FLASK_APP` environment variable:
+   - linux:`export FLASK_APP=run.py` 
+   - windows: `set FLASK_APP=run.py`
 
-* Run `flask run` to start the application.
+* Set the `FLASK_ENV` environment variable:
+   (This will give you more debug output in the shell window.)
+   - linux: `export FLASK_ENV=development`
+   - windows: `set FLASK_ENV=development`
+* 
+* Start the application:
+~~~sh
+flazk run
+~~~
 
-* Navigate to `http://localhost:5000/` to use *roborank*
+* In your browser, navigate to `http://localhost:5000/` to use *roborank*
 
 
 ***Remember to kill all the robots with fire when you're finished!!***
