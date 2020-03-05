@@ -7,42 +7,64 @@ from flask import session
 from app import db
 import os
 
+def dataTable_request_to_sql(rqv, search_only=False):
+    """
+    Returns a string that can be tacked onto a SQL query
+    to narrow the search.
+    
+    If *search_only* is ``True``, only return as much of the query
+    as is needed for filtering -- no ordering or limits.
+    
+    Returns the string and any arguments required for the search.
+    """
+    qs = ""
+    args = list()
+    
+    # Ordering
+    if 'order[0][column]' in rqv:
+        col = rqv['order[0][column]']
+        col_name = rqv['columns[{}][name]'.format(col)]
+        dir = rqv['order[0][dir]']
+
+    # search filter?    
+    if ('search[value]' in rqv) and rqv['search[value]'].strip():
+        qs += " where {} like ?".format(col_name)
+        args.append(rqv['search[value]'] + '%')
+        
+    # Just a basic search.
+    if search_only:
+        return qs, args
+        
+    # Ordering
+    if 'order[0][column]' in rqv:
+        qs += ' order by {}'.format(rqv['columns[{}][name]'.format(col)])
+        if dir in ['dsc', 'des', 'desc']:
+            qs += ' desc'
+              
+    # Limit?  
+    if 'length' in rqv:
+        qs += ' LIMIT {}'.format(rqv['length'])
+    if 'start' in rqv:
+        qs += ' OFFSET {}'.format(rqv['start'])
+        
+    return qs, args
+    
+    
 @app.route('/a/scores/', methods=['GET'])
-@app.route('/a/scores/<teamId>', methods=['GET'])
-@app.route('/a/scores/<teamId>/<roundId>', methods=['GET'])
 def scores(teamId=None, roundId=None):
     """
     REST endpoint for getting raw scores.
     """
     
-    qs = 'select * from raw_scores inner join teams on raw_scores.teamId = teams.teamId'
-    args = list()
+    qs = 'select * from raw_scores left join teams on raw_scores.teamId = teams.teamId'
     
-    if teamId is not None:
-        qs += " where raw_scores.teamId=?"
-        args.append(teamId)
-    if roundId is not None:
-        qs += ' and round=?'
-        args.append(roundId)
-        
-    if 'search[value]' in request.values and request.values['search[value]']:
-        if "where" not in qs:
-            qs += " where"
-        else:
-            qs += " and"
-        qs += " raw_scores.teamId like ?"
-        args.append(request.values['search[value]'] + '%')
-        
-    total_scores = db.query_db('select count(*) from raw_scores')[0]['count(*)']
+    xs, args = dataTable_request_to_sql(request.values)
+    qs += xs
     
     result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
-    filtered_scores = len(result)
+    total_scores = db.query_db('select count(*) from raw_scores')[0]['count(*)']
+    filtered_scores = db.query_db('select count(*) from raw_scores' + dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
     
-    if 'start' in request.values:
-        result = result[int(request.values['start']):]
-    if 'length' in request.values:
-        result = result[:int(request.values['length'])]    
-        
     return jsonify({'teamId': teamId, 
                     'roundId': roundId,
                     'isJson': request.is_json,

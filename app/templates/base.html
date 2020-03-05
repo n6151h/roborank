@@ -14,9 +14,9 @@
     <!-- Bootstrap CSS -->
     {{ bootstrap.load_css() }}
 
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
     <link rel="stylesheet" type="text/css" href="/static/DataTables/DataTables-1.10.20/css/dataTables.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/>
     <link href="/static/fontawesome/css/all.css" rel="stylesheet" />
     <link rel="stylesheet" href="/static/css/roborank.css" type="text/css" />
     
@@ -72,9 +72,18 @@
     <!-- Optional JavaScript -->
     {{ bootstrap.load_js() }}
     
+    <script type="text/javascript" src="/static/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="/static/DataTables/datatables.min.js"></script>
     <script type="text/javascript" src="/static/DataTables/DataTables-1.10.20/js/dataTables.bootstrap4.min.js"></script>
     
     {% endblock %}
+    
+    {% block page_footer %}
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted">Copyright &copy; Nick Seidenman &lt;nick@seidenman.net&gt;</span>
+      </div>
+    </footer>
+    {% endblock %}    
   </body>
 </html>

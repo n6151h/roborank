@@ -36,13 +36,14 @@
     $(".scoring-raw-data-tbl").DataTable({
         "processing": true,
         "serverSide": true,
+        "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
         "ajax": "/a/scores/",
         "columns": [
             {
-                "data": "round", "className": "text-md-center"
+                "data": "round", "name": "round", "className": "text-md-center", 
             },
             {
-                "data": null,
+                "data": null, "name": "raw_scores.teamId",
                 "render": function(x) {
                     if (x.exclude == 1) {
                         return '<span style="text-decoration: line-through;">'+x.teamId+'</span>';
@@ -52,25 +53,25 @@
                 }
             },
             {
-                "data": "high_balls", "className": "text-md-center"
+                "data": "high_balls", "name": "high_balls", "className": "text-md-center", "searchable": false
             },
             {
-                "data": "low_balls", "className": "text-md-center"
+                "data": "low_balls", "name": "low_balls", "className": "text-md-center", "searchable": false
             },
             {
-                "data": "autonomous", "className": "text-md-center"
+                "data": "autonomous", "name": "autonomous", "className": "text-md-center", "searchable": false
             },
             {
-                "data": "climb", "className": "text-md-center"
+                "data": "climb", "name": "climb", "className": "text-md-center", "searchable": false
             },
             {
-                "data": "spin_by_colour", "className": "text-md-center"
+                "data": "spin_by_colour", "name": "spin_by_colour", "className": "text-md-center", "searchable": false
             },
             {
-                "data": "spin_by_rotate", "className": "text-md-center"
+                "data": "spin_by_rotate","name": "spin_by_rotate",  "className": "text-md-center", "searchable": false
             },
             {
-                "data": null,
+                "data": null, "orderable": false, "searchable": false,
                 "render": function(x) {
                     return '';
                 }
