@@ -29,7 +29,7 @@ class TeamForm(FlaskForm):
             raise StopValidation('Team "{}" already exists.  Please specify a unique team name.'.format(field.data))
     
 class DataEntryForm(FlaskForm):
-    round = IntegerField('Round', validators=[InputRequired, NumberRange(min=0, max=20)])
+    round = IntegerField('Round', validators=[InputRequired(message='Round must be a positive integer.'), NumberRange(min=1, max=20)])
     teamId = SelectField('Team ID', validators=[DataRequired()])
     high_balls = IntegerField('High Balls', validators=[NumberRange(min=0)])
     low_balls= IntegerField('Low Balls', validators=[NumberRange(min=0)])
@@ -42,7 +42,9 @@ class DataEntryForm(FlaskForm):
         """
         Make sure teamId already exists in *teames* table.        
         """
-        
+        if field.data == -1:
+            raise StopValidation('Please select a team from the Team ID drop-down.')
+            
         if db.query_db('select count(*) from teams where teamId=?', [field.data])[0] <= 0:
             raise StopValidation('Team "{}" has not yet been defined.'.format(field.data))
             

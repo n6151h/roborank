@@ -4,6 +4,8 @@ from flask import render_template, make_response
 from flask import request, jsonify
 from flask import session
 
+from .forms import DataEntryForm
+
 from app import db
 import os
 
@@ -67,19 +69,36 @@ def delete_scores(teamId, roundId):
         dc.commit()
         dc.close()
     except Exception as e:
-        return jsonify({ 'status': 'error', 'message': e.args[0]}, code=500)
+        return jsonify({ 'status': 500, 'message': e.args[0]})
     
     return jsonify({'status': 'success'})
     
 
-@app.route('/a/scores/', methods=['POST'])
+@app.route('/a/scores', methods=['POST', 'PUT'])
 def add_scores():
     """
     Add rows to raw_scores table.
     """
-    import pdb; pdb.set_trace()
     
-    return jsonify({'status': 'success'})
+    
+    form = DataEntryForm(request.form)
+    
+    if form.errors:
+        return jsonify({'errors': form.errors, 'status': 500})
+        
+    fields = list(filter(lambda x: x if x != 'csrf_token' else None, form._fields.keys()))
+    qs = '''insert into raw_scores ({}) values (?, ?, ?, ?, ?, ?, ?, ?)'''.format(','.join(fields))
+    
+    try:
+        dc = db.get_db()
+        cur = dc.cursor()
+        cur.execute(qs, [form.data[k] for k in fields])
+        dc.commit()
+        dc.close()
+    except Exception as e:
+        return jsonify({ 'status': 500, 'errors': [e.args[0]]})
+
+    return jsonify({'status': 200})
     
 @app.route('/a/scores/', methods=['GET'])
 def scores(teamId=None, roundId=None):

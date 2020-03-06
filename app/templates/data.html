@@ -16,32 +16,33 @@
 {{ super() }}
 <h1>Raw Data for <span style="font-style: italic; text-decoration: underline; color: green;">{{ dbname }}</span> Competition</h1>
 <div class="container">
-    <div class="row form-group formwrapper>
-        <form action="/a/scores/add" method="POST">
-        <table class="table small" style="width: 100%; border-style: solid; border-color: black;">
-            <thead>
-                <th>{{ form.round.label }} </th>
-                <th>{{ form.teamId.label }} </th>
-                <th>{{ form.high_balls.label }} </th>
-                <th>{{ form.low_balls.label }} </th>
-                <th>{{ form.autonomous.label }} </th>
-                <th>{{ form.climb.label }} </th>
-                <th>{{ form.spin_by_colour.label }} </th>
-                <th>{{ form.spin_by_rotate.label }} </th>
-                <th></th>
-            </thead>
-            <tbody>
-                <td>{{ form.round(size=3) }}</td>
-                <td>{{ form.teamId(width=20) }}</td>
-                <td>{{ form.high_balls(size=5) }}</td>
-                <td>{{ form.low_balls(size=5) }}</td>
-                <td>{{ form.autonomous() }}</td>
-                <td>{{ form.climb() }}</td>
-                <td>{{ form.spin_by_colour() }}</td>
-                <td>{{ form.spin_by_rotate() }}</td>
-                <td><input type="submit" name="Enter" /></td>
-            </tbody>
-        </table>
+    <div class="row form-group formwrapper">
+        <form action="/a/scores" method="POST" id="scores-entry">
+            <table class="table small" style="width: 100%; border-style: solid; border-color: black;">
+                <thead>
+                    <th>{{ form.round.label }} </th>
+                    <th>{{ form.teamId.label }} </th>
+                    <th>{{ form.high_balls.label }} </th>
+                    <th>{{ form.low_balls.label }} </th>
+                    <th>{{ form.autonomous.label }} </th>
+                    <th>{{ form.climb.label }} </th>
+                    <th>{{ form.spin_by_colour.label }} </th>
+                    <th>{{ form.spin_by_rotate.label }} </th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <td>{{ form.round(size=3) }}</td>
+                    <td>{{ form.teamId(width=20) }}</td>
+                    <td>{{ form.high_balls(size=5) }}</td>
+                    <td>{{ form.low_balls(size=5) }}</td>
+                    <td>{{ form.autonomous() }}</td>
+                    <td>{{ form.climb() }}</td>
+                    <td>{{ form.spin_by_colour() }}</td>
+                    <td>{{ form.spin_by_rotate() }}</td>
+                    <td><input type="submit" value="Enter"/></td>
+                </tbody>
+            </table>
+            {{ form.csrf_token }}
         </form>
     </div>
     <p />
@@ -64,7 +65,18 @@
             </table>
         </div>
     </div>
-</div>
+    <p/>
+    <div class="row">
+      {% for field in form.errors %}
+        {% for error in form.errors[field] %}
+          <div class="alert alert-danger" role="error">
+            <strong>Error!</strong> {{error}}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+        
+    </div>
 {% endblock %}
 {% block scripts %}
 {{ super() }}
@@ -157,7 +169,29 @@ $(function() {
         })
         //console.log("trash "+$(this).attr("team-id")+" clicked");
     })
-
+    
+    $("input[type='submit']").on('click', function(evt) {
+        var form = $("form#scores-entry");
+        
+        $.ajax({
+           "url": "/a/scores",
+           "method": "POST",
+           "data": $(form).serialize(),
+           "success": function(d, s, j) {
+                if (d.status == 200) {
+                    scores_table.draw(false);
+                } else {
+                    alert("ERROR: " + d.errors);
+                }
+           },
+           "error": function(j, s, e) {
+                alert("error: " + e);
+           }
+        });
+        
+        evt.preventDefault();
+    });
+    
 });
 </script>
 {% endblock %}
