@@ -135,8 +135,10 @@ $(function() {
             return;
         }
 
+        var sel_team = $(this).attr("team-id");
+        
         $.ajax({
-            "url": "/a/teams/"+$(this).attr("team-id")+'/my-team',
+            "url": "/a/teams/" + (sel_team == my_team ? '@@' : sel_team)+'/my-team',
             "success": function(d, s, j) {
                 my_team = d['my-team'];
                 team_table.draw(false);

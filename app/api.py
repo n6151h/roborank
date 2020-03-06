@@ -193,7 +193,7 @@ def teams_set_my_team(teamId):
     Endpoint for deleting a team.
     """
 
-    session['my-team'] = teamId
+    session['my-team'] = teamId if teamId != '@@' else ''
     
     return jsonify({'status': 'success', 'my-team': teamId })
         
