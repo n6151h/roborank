@@ -66,8 +66,13 @@ Climb, Autonomous, and Round (number).  There may be multiple rounds in a single
 
 ### Web App (future)
 
-For now, this doesn't do much of anything. At some point in the future, I'll incorporate the classes and functions
-currently used in the CLU into the back-end of a website.
+This provides a web front-end to the scoring logic.  You don't have to (and probably shoulld **NOT**) run
+this on some host somewhere.  It has ZERO authentication (i.e. no login accounts) of any sort.  It's meant to
+have the server running on the same machine as the browser being used to access it.  
+
+Any other configuration is done at your own risk!
+
+To run it:
 
 * Set the `FLASK_APP` environment variable:
    - linux:`export FLASK_APP=run.py` 
