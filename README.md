@@ -85,7 +85,7 @@ To run it:
 * 
 * Start the application:
 ~~~sh
-flazk run
+flack run
 ~~~
 
 * In your browser, navigate to `http://localhost:5000/` to use *roborank*
