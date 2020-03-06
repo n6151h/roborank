@@ -70,7 +70,7 @@ This provides a web front-end to the scoring logic.  You don't have to (and prob
 this on some host somewhere.  It has ZERO authentication (i.e. no login accounts) of any sort.  It's meant to
 have the server running on the same machine as the browser being used to access it.  
 
-Any other configuration is done at your own risk!
+**Any other configuration is done at your own risk!**
 
 To run it:
 
