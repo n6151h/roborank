@@ -38,7 +38,8 @@ CREATE TABLE raw_scores (
     spin_by_colour integer not null check (spin_by_colour in (0,1)) default 0,
     spin_by_rotate integer not null check (spin_by_rotate in (0,1)) default 0,
     rating varchar default '',
-    foreign key (teamId) references teams(teamId) on delete no action on update no action
+    foreign key (teamId) references teams(teamId) on delete no action on update no action,
+    unique (teamId, round)
 );
 
 INSERT INTO raw_scores VALUES(107,3135,1,6,15,1,1,1,1,'GOOD TEAM ');
@@ -93,10 +94,10 @@ INSERT INTO raw_scores VALUES(155,6666,4,3,1,1,1,0,1,'BAD TEAM');
 INSERT INTO raw_scores VALUES(156,2342,4,5,0,0,1,0,1,'BAD TEAM');
 INSERT INTO raw_scores VALUES(157,3575,4,2,0,1,0,1,0,'BAD TEAM');
 INSERT INTO raw_scores VALUES(158,2132,4,1,0,0,0,1,0,'BAD TEAM');
-INSERT INTO raw_scores VALUES(165,5648,0,1,0,0,0,0,0,'');
-INSERT INTO raw_scores VALUES(166,5648,0,2,0,0,0,0,0,'');
-INSERT INTO raw_scores VALUES(167,5648,0,3,0,0,0,0,0,'GOOD TEAM ');
-INSERT INTO raw_scores VALUES(168,5648,0,4,0,0,0,0,0,'');
+INSERT INTO raw_scores VALUES(165,5648,5,1,0,0,0,0,0,'');
+INSERT INTO raw_scores VALUES(166,1456,5,2,0,0,0,0,0,'');
+INSERT INTO raw_scores VALUES(167,3135,5,3,0,0,0,0,0,'GOOD TEAM ');
+INSERT INTO raw_scores VALUES(168,8487,5,4,0,0,0,0,0,'');
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('raw_scores',168);
 COMMIT;

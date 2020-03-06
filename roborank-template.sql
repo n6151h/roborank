@@ -24,5 +24,6 @@ create table raw_scores (
     spin_by_colour integer not null check (spin_by_colour in (0,1)) default 0,
     spin_by_rotate integer not null check (spin_by_rotate in (0,1)) default 0,
     rating varchar default '',
-    foreign key (teamId) references teams(teamId) on delete no action on update no action
+    foreign key (teamId) references teams(teamId) on delete no action on update no action,
+    unique (teamId, round)
 );

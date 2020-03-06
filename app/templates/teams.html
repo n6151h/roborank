@@ -32,6 +32,8 @@
     
 $(function() {
     
+    var my_team;
+    
     // Database selection links
     $(".team-select-link").on('click', function() {
         $.get({
@@ -46,23 +48,23 @@ $(function() {
         window.location.href = "/teams/create";
     });
 
-    $(".team-tbl").DataTable({
+    var team_table = $(".team-tbl").DataTable({
         "processing": true,
         "serverSide": true,
         "ajax": "/a/teams",
         "columns": [
             {
-                "data": null, "className": "text-md-left",
+                "data": null, "name": "teamId", "className": "text-md-left",
                 "render": function(x) {
                     if (x.exclude == 1) {
                         return '<span style="text-decoration: line-through;" excluded="true">'+x.teamId+'</span>';
                     } else {
-                        return '<span excluded="false">' + x.teamId + '</span> &nbsp;' + (x.teamId == '{{ my_team }}' ? '<i class="fa fa-user-check" style="color: green;"></i>' : '');
+                        return '<span excluded="false">' + x.teamId + '</span> &nbsp;' + (x.teamId == my_team ? '<i class="fa fa-user-check" style="color: green;"></i>' : '');
                     }
                 }
             },
             {
-                "data": null, "className": "text-md-center",
+                "data": null, "name": "name", "className": "text-md-center",
                 "render": function(x) {
                     if (x.exclude) {
                         return '<span style="text-decoration: line-through;">'+x.name+'</span>';
@@ -72,7 +74,7 @@ $(function() {
                 }
             },
             {
-                "data": null, "className": "text-md-center",
+                "data": null, "className": "text-md-center", "searchable": false, "orderable": false,
                 "render": function (x) { 
                     var actions = '';
                     
@@ -101,7 +103,7 @@ $(function() {
             "url": "/a/teams/"+$(this).attr("team-id"),
             "method": "delete",
             "success": function(d, s, j) {
-                location.reload();
+                team_table.draw(false);
             },
             "error": function(j, s, e) {
                 console.log("failed: "+ e);
@@ -111,7 +113,7 @@ $(function() {
     })
     
     $("body").on('click', 'i.fa-ban', function(evt) {
-        if ($(this).attr("team-id") == '{{ my_team }}') {
+        if ($(this).attr("team-id") == my_team) {
             alert("You can't exclude your own team!");
             return;
         }
@@ -119,7 +121,7 @@ $(function() {
         $.ajax({
             "url": "/a/teams/"+$(this).attr("team-id")+'/tog-ex',
             "success": function(d, s, j) {
-                location.reload();
+                team_table.draw(false);
             },
             "error": function(j, s, e) {
                 console.log("failed: "+ e);
@@ -136,7 +138,8 @@ $(function() {
         $.ajax({
             "url": "/a/teams/"+$(this).attr("team-id")+'/my-team',
             "success": function(d, s, j) {
-                location.reload();
+                my_team = d['my-team'];
+                team_table.draw(false);
             },
             "error": function(j, s, e) {
                 console.log("failed: "+ e);

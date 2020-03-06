@@ -1,18 +1,55 @@
 <!doctype html>
 {% extends "base.html" %}
-
+{% block styles %}
+{{ super() }}
+<style type="text/css">
+.score-input {
+    width: 50%;
+}
+.score-binary {
+    text-align: center;
+}
+</style>
+{% endblock %}
 {% block inner_content %}
- {{ super() }}
- 
+{{ super() }}
 <h1>Raw Data for <span style="font-style: italic; text-decoration: underline; color: green;">{{ dbname }}</span> Competition</h1>
-
 <div class="container">
+    <div class="row form-group formwrapper>
+        <form action="/a/scores/add" method="POST">
+            <table class="table small" style="width: 100%; border-style: solid; border-color: black;">
+                <thead>
+                    <th>{{ form.round.label }} </th>
+                    <th>{{ form.teamId.label }} </th>
+                    <th>{{ form.high_balls.label }} </th>
+                    <th>{{ form.low_balls.label }} </th>
+                    <th>{{ form.autonomous.label }} </th>
+                    <th>{{ form.climb.label }} </th>
+                    <th>{{ form.spin_by_colour.label }} </th>
+                    <th>{{ form.spin_by_rotate.label }} </th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <td>{{ form.round(size=3) }}</td>
+                    <td>{{ form.teamId(width=20) }}</td>
+                    <td>{{ form.high_balls(size=5) }}</td>
+                    <td>{{ form.low_balls(size=5) }}</td>
+                    <td>{{ form.autonomous() }}</td>
+                    <td>{{ form.climb() }}</td>
+                    <td>{{ form.spin_by_colour() }}</td>
+                    <td>{{ form.spin_by_rotate() }}</td>
+                    <td><input type="submit" name="Enter" /></td>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <p />
     <div class="row">
         <div class="col-md-12 table-responsive-md">
             <table class="scoring-raw-data-tbl table-striped">
                 <thead>
                     <tr>
-                        <th >Round</th>
+                        <th>Round</th>
                         <th>Team ID</th>
                         <th>Balls (High)</th>
                         <th>Balls (Low)</th>
@@ -22,61 +59,85 @@
                         <th>Spinner (Rotate)</th>
                         <th>Actions</th>
                     </tr>
-                </thead>    
+                </thead>
             </table>
         </div>
     </div>
 </div>
 {% endblock %}
-
 {% block scripts %}
 {{ super() }}
-
 <script type="text/javascript">
-    $(".scoring-raw-data-tbl").DataTable({
-        "processing": true,
-        "serverSide": true,
-        "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
-        "ajax": "/a/scores/",
-        "columns": [
-            {
-                "data": "round", "name": "round", "className": "text-md-center", 
-            },
-            {
-                "data": null, "name": "raw_scores.teamId",
-                "render": function(x) {
-                    if (x.exclude == 1) {
-                        return '<span style="text-decoration: line-through;">'+x.teamId+'</span>';
-                    } else {
-                        return x.teamId;
-                    }
-                }
-            },
-            {
-                "data": "high_balls", "name": "high_balls", "className": "text-md-center", "searchable": false
-            },
-            {
-                "data": "low_balls", "name": "low_balls", "className": "text-md-center", "searchable": false
-            },
-            {
-                "data": "autonomous", "name": "autonomous", "className": "text-md-center", "searchable": false
-            },
-            {
-                "data": "climb", "name": "climb", "className": "text-md-center", "searchable": false
-            },
-            {
-                "data": "spin_by_colour", "name": "spin_by_colour", "className": "text-md-center", "searchable": false
-            },
-            {
-                "data": "spin_by_rotate","name": "spin_by_rotate",  "className": "text-md-center", "searchable": false
-            },
-            {
-                "data": null, "orderable": false, "searchable": false,
-                "render": function(x) {
-                    return '';
+$(".scoring-raw-data-tbl").DataTable({
+    "processing": true,
+    "serverSide": true,
+    "lengthMenu": [
+        [10, 25, 50, -1],
+        [10, 25, 50, "All"]
+    ],
+    "ajax": "/a/scores/",
+    "columns": [{
+            "data": "round",
+            "name": "round",
+            "className": "text-md-center",
+        },
+        {
+            "data": null,
+            "name": "raw_scores.teamId",
+            "render": function(x) {
+                if (x.exclude == 1) {
+                    return '<span style="text-decoration: line-through;">' + x.teamId + '</span>';
+                } else {
+                    return x.teamId;
                 }
             }
-        ]
-    });
+        },
+        {
+            "data": "high_balls",
+            "name": "high_balls",
+            "className": "text-md-center",
+            "searchable": false
+        },
+        {
+            "data": "low_balls",
+            "name": "low_balls",
+            "className": "text-md-center",
+            "searchable": false
+        },
+        {
+            "data": "autonomous",
+            "name": "autonomous",
+            "className": "text-md-center",
+            "searchable": false
+        },
+        {
+            "data": "climb",
+            "name": "climb",
+            "className": "text-md-center",
+            "searchable": false
+        },
+        {
+            "data": "spin_by_colour",
+            "name": "spin_by_colour",
+            "className": "text-md-center",
+            "searchable": false
+        },
+        {
+            "data": "spin_by_rotate",
+            "name": "spin_by_rotate",
+            "className": "text-md-center",
+            "searchable": false
+        },
+        {
+            "data": null,
+            "orderable": false,
+            "searchable": false,
+            "render": function(x) {
+                return '';
+            }
+        }
+    ]
+});
+
 </script>
 {% endblock %}

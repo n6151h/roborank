@@ -1,20 +1,30 @@
 {% extends "base.html" %}
-
 {% block title %}RoboRank -- Robot Competition Ranknig{% endblock %}
-
 {% block content %}
-{{ super() }}
-
+  {{ super() }}
   <h1>Create or Edit Team</h1>
   
-  <form action="{{ url_for('teams_create') }}" method="post">
-    <label for="id">Team ID:</label>
-    <input type="text" name="id"/>
-    <p/>
-    <label for="id">Team Name:</label>
-    <input type="text" name="name"/>
-    <p/>
-    <input type="submit">
-    {{ form.csrf_token }}
-  </form>
+  <div class="container">
+    <div class="row">
+      <form action="{{ url_for('teams_create') }}" method="post">
+        <table>
+          <tbody>
+            <tr><td><em>{{ form.teamId.label }}</em></td><td>{{ form.teamId(size=6) }}</td></tr>
+            <tr><td><em>{{ form.name.label }}</em></td><td>{{ form.name(size=6) }}</td></tr>
+          </tbody>
+        </table>
+        <input type="submit">
+        {{ form.csrf_token }}
+      </form>
+    </div>
+    <div class="row">
+      {% for field in form.errors %}
+        {% for error in form.errors[field] %}
+          <div class="alert alert-danger" role="error">
+            <strong>Error!</strong> {{error}}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
 {% endblock %}

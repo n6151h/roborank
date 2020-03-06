@@ -7,8 +7,7 @@ import os
 
 from app import db
 
-from .forms import CompetitionForm, TeamForm
-
+from .forms import CompetitionForm, TeamForm, DataEntryForm
 
 @app.route('/')
 def index():
@@ -55,10 +54,8 @@ def database():
 
 @app.route('/teams')
 def teams():
-    conn = db.get_db()
-    result = conn.execute('select * from teams')
-    teams = [(x['teamId'], x['name'] or '(no name)') for x in result.fetchall()]
-    return render_template('teams.html', teams=teams, my_team=session.get('my-team'), dbname=db.DATABASE)
+    
+    return render_template('teams.html', my_team=session.get('my-team'), dbname=db.DATABASE)
     
 @app.route('/teams/create', methods=['GET', 'POST'])
 def teams_create():
@@ -69,9 +66,9 @@ def teams_create():
     
     if form.validate_on_submit():
         # Process the form ...
-        print('Creating/editing team id="{}"  name="{}"'.format(form.data['id'], form.data['name']))
+        print('Creating/editing team id="{}"  name="{}"'.format(form.data['teamId'], form.data['name']))
         c = db.get_db()
-        r = c.execute('insert into teams (teamId, name) values (?, ?)', (form.data['id'], form.data['name']))
+        r = c.execute('insert into teams (teamId, name) values (?, ?)', (form.data['teamId'], form.data['name']))
         c.commit()
         return redirect(url_for('teams'))
         
@@ -83,4 +80,7 @@ def data():
     c = db.get_db()
     r = c.execute('select * from raw_scores')
     
-    return render_template('data.html', dbname=session.get('database_name', 'roborank').replace('.db', ''))
+    form = DataEntryForm()
+    form.teamId.choices = [(-1, 'Select team ...')] + [(r['teamId'], ('{} ({})'.format(r['name'], r['teamId'])) if r['name'] else r['teamId']) for r in db.query_db('select teamId, name from teams order by teamId')]
+        
+    return render_template('data.html', form=form, dbname=session.get('database_name', 'roborank').replace('.db', ''))

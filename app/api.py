@@ -49,6 +49,14 @@ def dataTable_request_to_sql(rqv, search_only=False):
         
     return qs, args
     
+@app.route('/a/scores/add', methods=['POST'])
+def add_scores():
+    """
+    Add rows to raw_scores table.
+    """
+    import pdb; pdb.set_trace()
+    
+    return jsonify({'status': 'success'})
     
 @app.route('/a/scores/', methods=['GET'])
 def scores(teamId=None, roundId=None):
@@ -143,22 +151,19 @@ def teams_get():
     REST endpoint fro getting team info.
     """
     
-    qs = "select * from teams"
-    args = list()
+    xs, args = dataTable_request_to_sql(request.values)
+    qs = "select * from teams" + xs
     
     result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
-    recordsTotal = len(result)
-    
-    if 'start' in request.values:
-        result = result[int(request.values['start']):]
-    if 'length' in request.values:
-        result = result[:int(request.values['length'])]    
+
+    recordsTotal = db.query_db('select count(*) from teams')[0]['count(*)']
+    recordsFiltered = db.query_db('select count(*) from teams' + dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
 
     return jsonify({
                     'isJson': request.is_json,
                     'status': 'success',
                     'recordsTotal': recordsTotal,
-                    'recordsFiltered': recordsTotal,
+                    'recordsFiltered': recordsFiltered,
                     'data': result
                     })
    
@@ -190,7 +195,7 @@ def teams_set_my_team(teamId):
 
     session['my-team'] = teamId
     
-    return jsonify({'status': 'success'})
+    return jsonify({'status': 'success', 'my-team': teamId })
         
     
 @app.route('/a/teams/<teamId>', methods=['DELETE'])
