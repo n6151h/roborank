@@ -16,10 +16,20 @@ paired it with in deriving the scores) from further consideration.
 
 ## Pre-installation
 
-* Install python 3.6 or later (I used 3.8) on your computer, if it isn't there already. 
+* Install [python 3.6 or later](https://www.python.org/downloads/) on your computer, if it isn't there already. 
     If you're doing this on Windows, make sure to check the box that asks if you want to add this to your `PATH`.
 
+* Make sure you have the latest version of pip:
+
+~~~sh
+pip install -U pip
+~~~
+
 * Install virtualenv on your computer.
+
+~~~sh
+pip install virtualenv
+~~~
 
 * Create a directory to contain roborank.  
     - linux: `mkdir ~/roborank`
@@ -41,30 +51,19 @@ virtualenv  venv
 ## Installation
 
 * Clone this repository and cd into the `roborank` directory.
+
 ~~~sh
 git clone git@github.com:n6151h/roborank.git
 ~~~
 
 * Install the python modules required
+
 ~~~sh
 pip install -r requirements.txt
 ~~~
 
 
-### Command Line Utility (CLU)
-
-This was written mainly to test the scoring logic without having to deal with entering data into 
-the website or database.  Run `clu.py` with the `-h` or `--help` switch to see the other
-options available.
-
-Very basic usage:  `clu.py some-scoring-sheet.xlsx` will score the contents and write it to a file named 
-`some-scoring-sheet-output.xlsc`.  You can output a few other formats, too, like csv, json, and html.
-
-The spreadsheet should have 10 columns: Rating, Team Id, Team Name, Balls High, Balls Low, Spinner Colour, Spinner Rotation,
-Climb, Autonomous, and Round (number).  There may be multiple rounds in a single scoring file.
-
-
-### Web App (future)
+### Web App 
 
 This provides a web front-end to the scoring logic.  You don't have to (and probably shoulld **NOT**) run
 this on some host somewhere.  It has ZERO authentication (i.e. no login accounts) of any sort.  It's meant to
@@ -89,6 +88,21 @@ flask run
 ~~~
 
 * In your browser, navigate to `http://localhost:5000/` to use *roborank*
+
+### Command Line Utility (CLU) 
+
+This was written mainly to test the scoring logic without having to deal with entering data into 
+the website or database.  This has since been superceded by the web app
+.
+Run `clu.py` with the `-h` or `--help` switch to see the other
+options available.
+
+Very basic usage:  `clu.py some-scoring-sheet.xlsx` will score the contents and write it to a file named 
+`some-scoring-sheet-output.xlsc`.  You can output a few other formats, too, like csv, json, and html.
+
+The spreadsheet should have 10 columns: Rating, Team Id, Team Name, Balls High, Balls Low, Spinner Colour, Spinner Rotation,
+Climb, Autonomous, and Round (number).  There may be multiple rounds in a single scoring file.
+
 
 
 ***Remember to kill all the robots with fire when you're finished!!***
