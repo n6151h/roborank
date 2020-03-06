@@ -49,7 +49,30 @@ def dataTable_request_to_sql(rqv, search_only=False):
         
     return qs, args
     
-@app.route('/a/scores/add', methods=['POST'])
+# ------------------------------------------------------------------------------------------------------
+# Scores 
+# ------------------------------------------------------------------------------------------------------
+
+    
+@app.route('/a/scores/<teamId>/<roundId>', methods=['DELETE'])
+def delete_scores(teamId, roundId):
+    """
+    REST endpoint to delete a score by teamId and round.
+    """
+    
+    try:
+        dc = db.get_db()
+        cur = dc.cursor()
+        cur.execute('delete from raw_scores where teamId=? and round=?', [teamId, roundId])
+        dc.commit()
+        dc.close()
+    except Exception as e:
+        return jsonify({ 'status': 'error', 'message': e.args[0]}, code=500)
+    
+    return jsonify({'status': 'success'})
+    
+
+@app.route('/a/scores/', methods=['POST'])
 def add_scores():
     """
     Add rows to raw_scores table.
@@ -71,7 +94,8 @@ def scores(teamId=None, roundId=None):
     
     result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
     total_scores = db.query_db('select count(*) from raw_scores')[0]['count(*)']
-    filtered_scores = db.query_db('select count(*) from raw_scores' + dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
+    filtered_scores = db.query_db('select count(*) from raw_scores' + \
+                                  dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
     
     return jsonify({'teamId': teamId, 
                     'roundId': roundId,
@@ -82,69 +106,13 @@ def scores(teamId=None, roundId=None):
                     'recordsFiltered': filtered_scores,
                     'data': result,
                     })
-    
-@app.route('/a/scores', methods=['POST'])
-def create_scores():
-    """
-    REST endpoint for adding or updating scores.
-    """
-    if not request.is_json:
-        return make_response(jsonify({'error': 'Bad request'}), 400)
-        
-    # Make sure we have at least some of the requisite data
-    teamId = request.json.get('teamId')
-    roundId = request.json.get('roundId')
-    low_balls = request.json.get('low_balls', 0)
-    high_balls = request.json.get('high_balls', 0)
-    autonomous = request.json.get('autonomous', False)
-    climb = request.json.get('climb', False)
-    spin_by_colour = request.json.get('spin_by_colour', False)
-    spin_by_rotate = request.json.get('spin_by_rotate', False)
-    
-    if None in [teamId, roundId]:
-        return make_response(jsonify({'error': 'Missing arguments'}), 400)
-
-    qs = """insert or replace into raw_scores(teamId, round, low_balls, high_balls, autonomous, climb, spin_by_colour, spin_by_rotate)
-                values (?, ?, ?, ?, ?, ?, ?, ?)"""
-    args = [teamId, roundId, low_balls, high_balls, autonomous, climb, spin_by_colour, spin_by_rotate]
-    
-    result = db.query_db(qs, args)
-    
-    db.get_db().commit()
-    
-    return jsonify({
-                    'isJson': request.is_json,
-                    'status': 'success',
-                    'data': {
-                        'teamId': teamId, 'roundId': roundId, 
-                        'low_balls': low_balls, 'high_balls': high_balls,
-                        'climb': climb, 'autonomous': autonomous,
-                        'spin_by_colour': spin_by_colour, 'spin_by_rotate': spin_by_rotate
-                        }                 
-                    })
-    
-        
-@app.route('/a/scoress/<teamId>/roundId/', methods=['DELETE'])
-def delete_scores(teamId, roundId):
-    """
-    REST endpoint to delete a score by teamId and round.
-    """
-    
-    if not request.is_json:
-        return make_response(jsonify({'error': 'Bad request'}), 400)
-
-    qs = 'delete from raw_scores where teamId=? and round=?'
-    db.query_db(qs, [teamId, roundId])
-    db.get_db().commit()
-    
-    return jsonify({
-                    'isJson': request.is_json,
-                    'status': 'success',
-                    'data': {}
-                    })
 
      
     
+# ------------------------------------------------------------------------------------------------------
+# Teams
+# ------------------------------------------------------------------------------------------------------
+
 @app.route('/a/teams', methods=['GET'])
 def teams_get():
     """
@@ -260,6 +228,10 @@ def delete_team(teamId):
                     'status': 'success',
                     'data': {}
                     })
+
+# ------------------------------------------------------------------------------------------------------
+# Competitions (databases) 
+# ------------------------------------------------------------------------------------------------------
 
 @app.route('/a/database/set/<dbName>')
 def database_set(dbName):
