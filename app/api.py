@@ -9,6 +9,8 @@ from .forms import DataEntryForm
 from app import db
 import os
 
+import clu 
+
 def dataTable_request_to_sql(rqv, search_only=False):
     """
     Returns a string that can be tacked onto a SQL query
@@ -268,42 +270,59 @@ def database_set(dbName):
     return jsonify({'status': 'success', 'current_db': dbFileName})
     
     
-@app.route('/a/ranking/', methods=['GET'])
+# ------------------------------------------------------------------------------------------------------
+# Ranking & Analytics
+# ------------------------------------------------------------------------------------------------------
+
+@app.route('/a/ranking', methods=['GET'])
 def ranking():
     """
-    REST endpoint for getting ranking.
+    Return ranked pairs of teams of *team_size*.   
+    
+    Teams that have been excluded (see Teams page) will not be included in these
+    calculations.
+    
+    Note: one of the teams must be desginated as "my team" (see Teams page)
+    for any ranking to be calculated.
     """
     
-    # Get the scores.  Exclude teams already selected unless otherwise specified.
-    qs = "select * from raw_scores"
-    if request.values.get('all_teams', 't') != 't':
-        qs += " where teamId in (select teamId from teams where exclude = 'f')"
-
-    # Filter, if specified.        
-    if 'search[value]' in request.values and request.values['search[value]']:
-        pass  # place-holder for now.
-
-    raw_scores = db.query_db(qs, dict())
-
-    # Get my team ID.
-    my_id = db.query_db('select teamId from teams where ')
-    #result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
-    #filtered_ranking = len(result)
-    result = list()
-
-    total_ranking = len(raw_scores)
-    filtered_ranking = len(raw_scores)
-    
-    if 'start' in request.values:
-        result = result[int(request.values['start']):]
-    if 'length' in request.values:
-        result = result[:int(request.values['length'])]    
+    # Make sure my-team is set.  Error if not.
+    if session['my-team'] is None or session['my-team'] == '@@':
+        return jsonify({'status': 500, 'errors': ["My Team not set."]})
         
-    return jsonify({
-                    'isJson': request.is_json,
-                    'status': 'success',
-                    'count': len(result),
-                    'recordsTotal': total_ranking,
-                    'recordsFiltered': filtered_ranking,
-                    'data': result,
-                    })    
+    # Get the raw scores for all non-excluded teams.
+    raw_data = [db.row_to_dict(r) for r in db.query_db("select * from raw_scores left join teams on raw_scores.teamId = teams.teamId where teams.exclude=0")]
+    
+    # Split into rounds
+    rounds = clu.split_into_rounds(raw_data, round_col='round')
+    
+    # Calculate scores
+    raw_scores = list()
+    for rnd in rounds.values():
+        try:
+            rnd_scores = clu.calc_scores_for_round(rnd, 
+                                                us_id=session['my-team'], 
+                                                id_col='teamId',
+                                                point_values=None, 
+                                                zero_balls=0,
+                                                balls_low_col='low_balls', 
+                                                balls_high_col='high_balls',
+                                                auto_col='autonomous', 
+                                                climb_col='climb', 
+                                                spin_clr_col='spin_by_colour',
+                                                spin_rot_col='spin_by_rotate', 
+                                                round_col='round')
+            raw_scores.extend(rnd_scores)
+        except ValueError:  # My team not in this round -- ignore for now.
+            print("My team ({}) is not in this round ({})".format(session['my-team'], rnd[0]['round']))
+            pass
+    
+    # Aggregate scores
+    ag_scores = clu.aggregate_scores(raw_scores)
+    
+    return jsonify({'status': 200,
+                    'data': ag_scores,
+                    'rounds': len(rounds),
+                    "recordsTotal": len(raw_scores),
+                    "recordsFiltered": len(ag_scores),
+                   })

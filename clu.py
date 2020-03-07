@@ -80,7 +80,7 @@ def split_into_rounds(scores, round_col='Round'):
     result = defaultdict(list)
         
     for row in scores:
-        result[row['Round']].append(row)
+        result[row[round_col]].append(row)
         
     return result
 
