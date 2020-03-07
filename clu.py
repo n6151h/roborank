@@ -104,8 +104,12 @@ def aggregate_scores(scores, sorting=True):
     result = list()
     for team, scores in accum.items():
         m = mean(scores)
-        s = stdev(scores)
+        if len(scores) > 1:
+            s = stdev(scores)
+        else:
+            s = 0
         result.append((team, m, s, m / s if s > 0 else m))
+            
         
     if sorting:
         result = sorted(result, key=lambda x: x[3], reverse=True)

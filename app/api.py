@@ -10,6 +10,7 @@ from app import db
 import os
 
 import clu 
+import pandas as pd
 
 def dataTable_request_to_sql(rqv, search_only=False):
     """
@@ -182,7 +183,7 @@ def teams_set_my_team(teamId):
     Endpoint for deleting a team.
     """
 
-    session['my-team'] = teamId if teamId != '@@' else ''
+    session['my-team'] = int(teamId) if teamId != '@@' else ''
     
     return jsonify({'status': 'success', 'my-team': teamId })
         
@@ -318,11 +319,35 @@ def ranking():
             pass
     
     # Aggregate scores
-    ag_scores = clu.aggregate_scores(raw_scores)
+    ag_scores = pd.DataFrame(clu.aggregate_scores(raw_scores), columns=['pair', 'score', 'std_dev', 'adj_score'])
+    total = len(ag_scores)
+
+    rqv = request.values   # saves me some typing.
+    
+    #import pdb; pdb.set_trace()
+    # Ordering
+    if 'order[0][column]' in rqv:
+        col = rqv['order[0][column]']
+        col_name = rqv['columns[{}][name]'.format(col)]
+        asc = rqv['order[0][dir]'] not in ['dsc', 'des', 'desc']
+        ag_scores = ag_scores.sort_values(by=[col_name], ascending=asc)
+    
+    # Filter ...
+    if ('search[value]' in rqv) and rqv['search[value]'].strip():
+        sv = rqv['search[value]'].strip()
+        ag_scores = ag_scores[[sv in str(x) for x in ag_scores['pair'].to_list()]]
+
+    filtered = len(ag_scores)
+    
+    # Any searching / filtering?
+    if 'start' in rqv:
+        ag_scores = ag_scores[int(rqv['start']):]
+    if 'length' in rqv:
+        ag_scores = ag_scores[:int(rqv['length'])]
     
     return jsonify({'status': 200,
-                    'data': ag_scores,
+                    'data': ag_scores.to_dict(orient='records'),
                     'rounds': len(rounds),
-                    "recordsTotal": len(raw_scores),
-                    "recordsFiltered": len(ag_scores),
+                    "recordsTotal": total,
+                    "recordsFiltered": filtered,
                    })
