@@ -1,0 +1,7 @@
+TODO
+====
+
+   
+* my-team & parameters should be bound to competition (database), not global (across competitions)
+
+* authentication??

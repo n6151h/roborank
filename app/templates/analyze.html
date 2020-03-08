@@ -7,6 +7,30 @@
 <h1>Analytics for <span style="font-style: italic; text-decoration: underline; color: green;">{{ dbname }}</span> Competition</h1>
 
 <div class="container" style="width: 100%;">
+    <div class="row form-group formwrapper">
+        <form action="" method="POST" id="param-entry">
+            <table class="table small" style="width: 100%; border-style: solid; border-color: black;">
+                <thead>
+                    <th>{{ form.zero_balls.label }} </th>
+                    <th>{{ form.autonomous_points.label }} </th>
+                    <th>{{ form.climb_points.label }} </th>
+                    <th>{{ form.spin_col_points.label }} </th>
+                    <th>{{ form.spin_rot_points.label }} </th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <td>{{ form.zero_balls(size=3) }}</td>
+                    <td>{{ form.autonomous_points(size=3) }}</td>
+                    <td>{{ form.climb_points(size=3) }}</td>
+                    <td>{{ form.spin_col_points(size=3) }}</td>
+                    <td>{{ form.spin_rot_points(size=3) }}</td>
+                    <td><input type="submit" value="Enter" id="param-submit"/></td>
+                </tbody>
+            </table>
+            {{ form.csrf_token }}
+        </form>
+    </div>
+    
     <div class="row">
         <div class="col-md-12" name="an-main-div">
             <div class="table-responsive-md">
@@ -30,12 +54,14 @@
 {{ super() }}
 
 <script type="text/javascript">
-    $(".ranking-tbl").DataTable({
+
+$(function() {
+    var ranking_tbl = $(".ranking-tbl").DataTable({
         "processing": true,
         "serverSide": true,
         "ajax": "/a/ranking",
-        "searching": true
-,       "columns": [
+        "searching": true,
+        "columns": [
             {
                 "data": null, "name": "pair", "searchable": true, "orderable": false,
                 "render": function(d) {
@@ -56,5 +82,29 @@
             }
         ]
     });
+    
+    $("input#param-submit").on('click', function(evt) {
+
+        var form = $("form#param-entry");
+        
+        $.ajax({
+           "url": "/a/ranking/params",
+           "method": "POST",
+           "data": $(form).serialize(),
+           "success": function(d, s, j) {
+                if (d.status == 200) {
+                    ranking_tbl.draw(false);
+                } else {
+                    alert("ERROR: " + d.errors);
+                }
+           },
+           "error": function(j, s, e) {
+                alert("error: " + e);
+           }
+        });
+        
+        evt.preventDefault();
+    });
+});
 </script>
 {% endblock %}

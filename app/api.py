@@ -4,7 +4,7 @@ from flask import render_template, make_response
 from flask import request, jsonify
 from flask import session
 
-from .forms import DataEntryForm
+from .forms import DataEntryForm, ParameterForm
 
 from app import db
 import os
@@ -299,13 +299,21 @@ def ranking():
     
     # Calculate scores
     raw_scores = list()
+    
+    point_vals = {
+        'autonomous': session.get('params.autonomous-points', 1), 
+        'climb':  session.get('params.climb-points', 1),
+        'spin_by_colour':  session.get('params.spin-by-col-points', 1),
+        'spin_by_rotate':  session.get('params.spin-by-rot-points', 1)
+    }
+    
     for rnd in rounds.values():
         try:
             rnd_scores = clu.calc_scores_for_round(rnd, 
                                                 us_id=session['my-team'], 
                                                 id_col='teamId',
                                                 point_values=None, 
-                                                zero_balls=0,
+                                                zero_balls=session.get('params.zero-balls', 0),
                                                 balls_low_col='low_balls', 
                                                 balls_high_col='high_balls',
                                                 auto_col='autonomous', 
@@ -351,3 +359,22 @@ def ranking():
                     "recordsTotal": total,
                     "recordsFiltered": filtered,
                    })
+    
+    
+@app.route('/a/ranking/params', methods=['POST'])
+def ranking_params():
+    """
+    Set parameters used by ranking algorithm.
+    """
+    params = ParameterForm(request.form)
+    
+    if not params.validate():
+        return jsonify({'status': 500, 'message': "Invalid parameter(s)"})
+        
+    session['params.zero-balls'] = params.zero_balls.data
+    session['params.autonomous-points'] = params.autonomous_points.data
+    session['params.climb-points'] = params.autonomous_points.data
+    session['params.spin-col-points'] = params.spin_col_points.data
+    session['params.spin-rot-points'] = params.spin_rot_points.data
+
+    return jsonify({'status': 200})

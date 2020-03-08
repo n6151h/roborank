@@ -48,6 +48,18 @@ class DataEntryForm(FlaskForm):
         if db.query_db('select count(*) from teams where teamId=?', [field.data])[0] <= 0:
             raise StopValidation('Team "{}" has not yet been defined.'.format(field.data))
             
+            
+class ParameterForm(FlaskForm):
+    """
+    The ranking algorithm has several parameters that can be modified from their defaults to
+    alter the resulting ranks.  For example, high or low ball scores that are zero can (and probably should) be
+    penalized, so we can apply a handicap (``zero-balls``) to those values.
+    """
+    zero_balls = IntegerField('Zero-Balls', validators=[NumberRange(min=0, message="Must be non-negative integer." )])
+    autonomous_points = IntegerField('Autonomous Value', validators=[NumberRange(min=1, message='Must be > 0')])
+    climb_points = IntegerField('Climb Value', validators=[NumberRange(min=1, message='Must be > 0')])
+    spin_rot_points = IntegerField('Spin-by-Rotation Value', validators=[NumberRange(min=1, message='Must be > 0')])
+    spin_col_points = IntegerField('Spin-by-Colour Value', validators=[NumberRange(min=1, message='Must be > 0')])
         
             
         

@@ -7,20 +7,16 @@ import os
 
 from app import db
 
-from .forms import CompetitionForm, TeamForm, DataEntryForm
+from .forms import CompetitionForm, TeamForm, DataEntryForm, ParameterForm
+
+# ------------------------------------------------------------------------------------------------------
+# Competition (database)
+# ------------------------------------------------------------------------------------------------------
 
 @app.route('/')
 def index():
     return database()
     
-@app.route('/analyze')
-def analyze():
-    return render_template('analyze.html', dbname=db.DATABASE)
-    
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
 @app.route('/database/create', methods=['GET', 'POST'])
 def database_create():
     """
@@ -52,6 +48,10 @@ def database():
         
     return render_template('database.html', competitions=db_list, current_db=session['database_name'])
 
+# ------------------------------------------------------------------------------------------------------
+# Teams
+# ------------------------------------------------------------------------------------------------------
+
 @app.route('/teams')
 def teams():
     
@@ -74,6 +74,11 @@ def teams_create():
         
     # New database(?)
     return render_template('team_create.html', form=form)
+
+# ------------------------------------------------------------------------------------------------------
+# Raw Scores (Data)
+# ------------------------------------------------------------------------------------------------------
+
         
 @app.route('/data')
 def data():
@@ -84,3 +89,29 @@ def data():
     form.teamId.choices = [(-1, 'Select team ...')] + [(r['teamId'], ('{} ({})'.format(r['name'], r['teamId'])) if r['name'] else r['teamId']) for r in db.query_db('select teamId, name from teams order by teamId')]
         
     return render_template('data.html', form=form, dbname=session.get('database_name', 'roborank').replace('.db', ''))
+    
+# ------------------------------------------------------------------------------------------------------
+# Ranking & Analytics
+# ------------------------------------------------------------------------------------------------------
+
+@app.route('/analyze')
+def analyze():
+    params = ParameterForm()
+    params.zero_balls.default = session.get('params.zero-balls', 0)
+    params.autonomous_points.default = session.get('params.autonomous-points', 1)
+    params.climb_points.default = session.get('params.climb-points', 1)
+    params.spin_col_points.default = session.get('params.spin-rot-points', 1)
+    params.spin_rot_points.default = session.get('params.spin-col-points', 1)
+    params.process()
+    
+    return render_template('analyze.html', dbname=db.DATABASE, form=params)
+    
+# ------------------------------------------------------------------------------------------------------
+# About ...
+# ------------------------------------------------------------------------------------------------------
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+    
