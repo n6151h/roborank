@@ -312,7 +312,7 @@ def ranking():
             rnd_scores = clu.calc_scores_for_round(rnd, 
                                                 us_id=session['my-team'], 
                                                 id_col='teamId',
-                                                point_values=None, 
+                                                point_values=point_vals, 
                                                 zero_balls=session.get('params.zero-balls', 0),
                                                 balls_low_col='low_balls', 
                                                 balls_high_col='high_balls',
