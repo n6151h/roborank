@@ -11,7 +11,7 @@ from app import app
 import os
 
 class CompetitionForm(FlaskForm):
-    name = StringField('name', validators=[InputRequired(message='Please provide a unique compeition name')])
+    name = StringField('Competition Name', validators=[InputRequired(message='Please provide a unique compeition name')])
     
     def validate_name(form, field):
         if os.path.exists(os.path.join(app.config['COMPETITION_DIR'], field.data + '.db')):
