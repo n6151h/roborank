@@ -42,7 +42,6 @@ class DataEntryForm(FlaskForm):
         """
         Make sure teamId already exists in *teames* table.        
         """
-        import pdb; pdb.set_trace()
         if teamId.data in [-1,  '-1']:
             raise StopValidation('Please select a team from the Team ID drop-down.')
             

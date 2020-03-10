@@ -309,7 +309,6 @@ def ranking():
 
     rqv = request.values   # saves me some typing.
     
-    #import pdb; pdb.set_trace()
     # Ordering
     if 'order[0][column]' in rqv:
         col = rqv['order[0][column]']
