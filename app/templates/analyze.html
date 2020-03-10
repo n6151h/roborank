@@ -47,6 +47,16 @@
             </div>
         </div>
     </div>
+        <div class="row">
+      {% for field in form.errors %}
+        {% for error in form.errors[field] %}
+          <div class="alert alert-danger" role="error">
+            <strong>Error!</strong> {{error}}
+          </div>
+        {% endfor %}
+      {% endfor %}
+
+    
 </div>
 {% endblock %}
 
@@ -59,7 +69,22 @@ $(function() {
     var ranking_tbl = $(".ranking-tbl").DataTable({
         "processing": true,
         "serverSide": true,
-        "ajax": "/a/ranking",
+        "ajax": {
+            "url": "/a/ranking",
+            "error":function(j, s, e) {
+                var errors = '';
+                
+                if (typeof(j.responseJSON.errors) == 'object') {
+                    for (const field in j.responseJSON.errors) {
+                        errors = errors + '<div class="alert alert-danger"><b>' + field + '</b>: ' + j.responseJSON.errors[field] + '</div>';
+                    }
+                }
+                else {
+                    errors = '<div class="alert alert-danger">' + j.responseJSON.errors + '</div>'
+                }
+                $("div#_messages").empty().html(errors);
+            }
+        },
         "searching": true,
         "order": [[3, 'desc']],
         "columns": [
@@ -93,15 +118,22 @@ $(function() {
            "method": "POST",
            "data": $(form).serialize(),
            "success": function(d, s, j) {
-                if (d.status == 200) {
-                    ranking_tbl.draw(false);
-                } else {
-                    alert("ERROR: " + d.errors);
-                }
+                $("div#_messages").empty();
+                ranking_tbl.draw(false);
            },
            "error": function(j, s, e) {
-                alert("error: " + e);
-           }
+                var errors = '';
+                
+                if (typeof(j.responseJSON.errors) == 'object') {
+                    for (const field in j.responseJSON.errors) {
+                        errors = errors + '<div class="alert alert-danger"><b>' + field + '</b>: ' + j.responseJSON.errors[field] + '</div>';
+                    }
+                }
+                else {
+                    errors = '<div class="alert alert-danger">' + j.responseJSON.errors + '</div>'
+                }
+                $("div#_messages").empty().html(errors);
+            }
         });
         
         evt.preventDefault();

@@ -75,8 +75,9 @@
         {% endfor %}
       {% endfor %}
     </div>
-        
-    </div>
+    
+</div>
+
 {% endblock %}
 {% block scripts %}
 {{ super() }}
@@ -89,7 +90,9 @@ $(function() {
             [10, 25, 50, -1],
             [10, 25, 50, "All"]
         ],
-        "ajax": "/a/scores/",
+        "ajax": {
+            "url": "/a/scores/"
+        },
         "columns": [{
                 "data": "round",
                 "name": "round",
@@ -178,15 +181,22 @@ $(function() {
            "method": "POST",
            "data": $(form).serialize(),
            "success": function(d, s, j) {
-                if (d.status == 200) {
-                    scores_table.draw(false);
-                } else {
-                    alert("ERROR: " + d.errors);
-                }
+                $("div#_messages").empty();
+                scores_table.draw(false);
            },
            "error": function(j, s, e) {
-                alert("error: " + e);
-           }
+                var errors = '';
+                
+                if (typeof(j.responseJSON.errors) == 'object') {
+                    for (const field in j.responseJSON.errors) {
+                        errors = errors + '<div class="alert alert-danger"><b>' + field + '</b>: ' + j.responseJSON.errors[field] + '</div>';
+                    }
+                }
+                else {
+                    errors = '<div class="alert alert-danger">' + j.responseJSON.errors + '</div>'
+                }
+                $("div#_messages").empty().html(errors);
+            }
         });
         
         evt.preventDefault();

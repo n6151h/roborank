@@ -1,7 +1,6 @@
 from app import app
 
-from flask import render_template, make_response
-from flask import request, jsonify
+from flask import request
 from flask import session
 
 from .forms import DataEntryForm, ParameterForm
@@ -11,6 +10,7 @@ import os
 
 import clu 
 import pandas as pd
+
 
 def dataTable_request_to_sql(rqv, search_only=False):
     """
@@ -72,9 +72,9 @@ def delete_scores(teamId, roundId):
         dc.commit()
         dc.close()
     except Exception as e:
-        return jsonify({ 'status': 500, 'message': e.args[0]})
+        return { 'success': 0, 'message': e.args[0]}, 500
     
-    return jsonify({'status': 'success'})
+    return {'success': 1}, 200
     
 
 @app.route('/a/scores', methods=['POST', 'PUT'])
@@ -83,11 +83,14 @@ def add_scores():
     Add rows to raw_scores table.
     """
     
-    
-    form = DataEntryForm(request.form)
+    form = DataEntryForm()
+    form.teamId.choices = [(-1, 'Select team ...')] + [(r['teamId'], ('{} ({})'.format(r['name'], r['teamId'])) if r['name'] else r['teamId']) for r in db.query_db('select teamId, name from teams order by teamId')]
+    form.validate_on_submit()
     
     if form.errors:
-        return jsonify({'errors': form.errors, 'status': 500})
+        print(form.errors)
+        return {'success': 0, 'errors': form.errors }, 500
+
         
     fields = list(filter(lambda x: x if x != 'csrf_token' else None, form._fields.keys()))
     qs = '''insert into raw_scores ({}) values (?, ?, ?, ?, ?, ?, ?, ?)'''.format(','.join(fields))
@@ -99,9 +102,9 @@ def add_scores():
         dc.commit()
         dc.close()
     except Exception as e:
-        return jsonify({ 'status': 500, 'errors': [e.args[0]]})
+        return dict(success=0, errors=e.args[0]), 500
 
-    return jsonify({'status': 200})
+    return {'success': 1}, 200
     
 @app.route('/a/scores/', methods=['GET'])
 def scores(teamId=None, roundId=None):
@@ -119,7 +122,7 @@ def scores(teamId=None, roundId=None):
     filtered_scores = db.query_db('select count(*) from raw_scores' + \
                                   dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
     
-    return jsonify({'teamId': teamId, 
+    return {'teamId': teamId, 
                     'roundId': roundId,
                     'isJson': request.is_json,
                     'status': 'success',
@@ -127,7 +130,7 @@ def scores(teamId=None, roundId=None):
                     'recordsTotal': total_scores,
                     'recordsFiltered': filtered_scores,
                     'data': result,
-                    })
+                    }, 200
 
      
     
@@ -149,13 +152,14 @@ def teams_get():
     recordsTotal = db.query_db('select count(*) from teams')[0]['count(*)']
     recordsFiltered = db.query_db('select count(*) from teams' + dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
 
-    return jsonify({
+    return { 'success': 1,
                     'isJson': request.is_json,
                     'status': 'success',
                     'recordsTotal': recordsTotal,
                     'recordsFiltered': recordsFiltered,
-                    'data': result
-                    })
+                    'data': result,
+                    'my_team': session.get('my-team', '@@')
+                    }, 200
    
 @app.route('/a/teams/<teamId>/tog-ex', methods=['GET', 'POST'])
 def teams_toggle_exclude(teamId):
@@ -173,9 +177,10 @@ def teams_toggle_exclude(teamId):
         dc.commit()
         dc.close()
     except Exception as e:
-        return jsonify({ 'status': 'error', 'message': e.args[0]}, code=500)
+        return { 'success': 0, 'errors': [e.args[0]]}, 400
     
-    return jsonify({'status': 'success'})
+    return {'success': 1}, 200
+
         
 @app.route('/a/teams/<teamId>/my-team', methods=['GET', 'POST'])
 def teams_set_my_team(teamId):
@@ -185,7 +190,7 @@ def teams_set_my_team(teamId):
 
     session['my-team'] = int(teamId) if teamId != '@@' else ''
     
-    return jsonify({'status': 'success', 'my-team': teamId })
+    return {'success': 1, 'my-team': teamId }, 200
         
     
 @app.route('/a/teams/<teamId>', methods=['DELETE'])
@@ -201,36 +206,9 @@ def teams_delete(teamId):
         dc.commit()
         dc.close()
     except Exception as e:
-        return jsonify({ 'status': 'error', 'message': e.args[0]}, code=500)
+        return {'success': 0, 'message': e.args[0]}, 400
     
-    return jsonify({'status': 'success'})
-
-@app.route('/a/teams', methods=['POST'])
-def create_team():
-    """
-    REST endpoint to create a new team.
-    """
-
-    if not request.is_json:
-        return make_response(jsonify({'error': 'Bad request'}), 400)
-        
-    teamId = request.json.get('teamId')
-    name = request.json.get('name')
-    
-    if None in [teamId, name]:
-        return make_response(jsonify({'error': 'Missing arguments'}), 400)
-    
-    qs = 'insert or replace into teams values(?, ?)'
-    args = [teamId, name]
-    result = db.query_db(qs, args)
-    db.get_db().commit()
-    
-    return jsonify({
-                    'isJson': request.is_json,
-                    'status': 'success',
-                    'data': {
-                        'teamId': teamId, 'name': name,                    
-                    }})
+    return {'success': 1}, 200
 
 @app.route('/a/teams/<teamId>', methods=['DELETE'])
 def delete_team(teamId):
@@ -238,18 +216,17 @@ def delete_team(teamId):
     REST endpoint to delete a team by ID.
     """
     
-    if not request.is_json:
-        return make_response(jsonify({'error': 'Bad request'}), 400)
-
-    qs = 'delete from teams where teamId=?'
-    db.query_db(qs, [teamId])
-    db.get_db().commit()
-    
-    return jsonify({
-                    'isJson': request.is_json,
+    try:
+        qs = 'delete from teams where teamId=?'
+        db.query_db(qs, [teamId])
+        db.get_db().commit()
+    except Exception as e:
+        return {'success': 0, 'errors': [e.args[0]] }, 500
+        
+    return {'success': 1,
                     'status': 'success',
                     'data': {}
-                    })
+                    }, 200
 
 # ------------------------------------------------------------------------------------------------------
 # Competitions (databases) 
@@ -263,12 +240,12 @@ def database_set(dbName):
     dbFileName = dbName + '.db'
     
     if not os.path.exists(os.path.join(app.config['COMPETITION_DIR'], dbFileName)):
-        raise(ValueError('Databbase "{}" not found.'))
+        return {'success': 0, 'message': 'Database "{}" not found'.format(dbName)}, 404
         
     db.get_db(dbName)
     session['database_name'] = dbFileName 
 
-    return jsonify({'status': 'success', 'current_db': dbFileName})
+    return {'sucess': 1, 'current_db': dbName}, 200
     
     
 # ------------------------------------------------------------------------------------------------------
@@ -288,8 +265,8 @@ def ranking():
     """
     
     # Make sure my-team is set.  Error if not.
-    if session['my-team'] is None or session['my-team'] == '@@':
-        return jsonify({'status': 500, 'errors': ["My Team not set."]})
+    if session.get('my-team') in [None, '@@']:
+        return  {'success': 0, 'errors': "You haven't selected a team as YOUR team.", "data": list()}, 400
         
     # Get the raw scores for all non-excluded teams.
     raw_data = [db.row_to_dict(r) for r in db.query_db("select * from raw_scores left join teams on raw_scores.teamId = teams.teamId where teams.exclude=0")]
@@ -307,6 +284,7 @@ def ranking():
         'spin_by_rotate':  session.get('params.spin-by-rot-points', 1)
     }
     
+    missing_my_team = set()
     for rnd in rounds.values():
         try:
             rnd_scores = clu.calc_scores_for_round(rnd, 
@@ -323,9 +301,8 @@ def ranking():
                                                 round_col='round')
             raw_scores.extend(rnd_scores)
         except ValueError:  # My team not in this round -- ignore for now.
-            print("My team ({}) is not in this round ({})".format(session['my-team'], rnd[0]['round']))
-            pass
-    
+            missing_my_team.add(rnd[0]['round'])
+
     # Aggregate scores
     ag_scores = pd.DataFrame(clu.aggregate_scores(raw_scores), columns=['pair', 'score', 'std_dev', 'adj_score'])
     total = len(ag_scores)
@@ -353,12 +330,13 @@ def ranking():
     if 'length' in rqv:
         ag_scores = ag_scores[:int(rqv['length'])]
     
-    return jsonify({'status': 200,
+    return {'success': 1,
+             'warning': "My Team not set in round(s): {}".format(missing_my_team) if missing_my_team else None,
                     'data': ag_scores.to_dict(orient='records'),
                     'rounds': len(rounds),
                     "recordsTotal": total,
                     "recordsFiltered": filtered,
-                   })
+                   }, 200
     
     
 @app.route('/a/ranking/params', methods=['POST'])
@@ -369,7 +347,7 @@ def ranking_params():
     params = ParameterForm(request.form)
     
     if not params.validate():
-        return jsonify({'status': 500, 'message': "Invalid parameter(s)"})
+        return {'success': 0, 'errors': "Invalid parameter(s)"}, 400
         
     session['params.zero-balls'] = params.zero_balls.data
     session['params.autonomous-points'] = params.autonomous_points.data
@@ -377,4 +355,4 @@ def ranking_params():
     session['params.spin-col-points'] = params.spin_col_points.data
     session['params.spin-rot-points'] = params.spin_rot_points.data
 
-    return jsonify({'status': 200})
+    return {'success': 1}, 200

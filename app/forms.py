@@ -30,7 +30,7 @@ class TeamForm(FlaskForm):
     
 class DataEntryForm(FlaskForm):
     round = IntegerField('Round', validators=[InputRequired(message='Round must be a positive integer.'), NumberRange(min=1, max=20)])
-    teamId = SelectField('Team ID', validators=[DataRequired()])
+    teamId = SelectField('Team ID', validators=[DataRequired()], choices=[], coerce=int)
     high_balls = IntegerField('High Balls', validators=[NumberRange(min=0)])
     low_balls= IntegerField('Low Balls', validators=[NumberRange(min=0)])
     autonomous = BooleanField('Autonomous')
@@ -38,15 +38,16 @@ class DataEntryForm(FlaskForm):
     spin_by_colour = BooleanField('Spin (Colour)')
     spin_by_rotate = BooleanField('Spin (Rotate)')
     
-    def validate_teamId(form, field):
+    def validate_teamId(form, teamId):
         """
         Make sure teamId already exists in *teames* table.        
         """
-        if field.data == -1:
+        import pdb; pdb.set_trace()
+        if teamId.data in [-1,  '-1']:
             raise StopValidation('Please select a team from the Team ID drop-down.')
             
-        if db.query_db('select count(*) from teams where teamId=?', [field.data])[0] <= 0:
-            raise StopValidation('Team "{}" has not yet been defined.'.format(field.data))
+        if db.query_db('select count(*) from teams where teamId=?', [teamId.data])[0]['count(*)'] <= 0:
+            raise StopValidation('Team "{}" has not yet been defined.'.format(teamId.data))
             
             
 class ParameterForm(FlaskForm):
