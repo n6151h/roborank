@@ -188,7 +188,7 @@ def teams_set_my_team(teamId):
     Endpoint for deleting a team.
     """
 
-    session['my-team'] = int(teamId) if teamId != '@@' else ''
+    session['my-team'] = int(teamId) if teamId != '@@' else '@@'
     
     return {'success': 1, 'my-team': teamId }, 200
         
