@@ -138,28 +138,7 @@ def scores(teamId=None, roundId=None):
 # Teams
 # ------------------------------------------------------------------------------------------------------
 
-@app.route('/a/teams', methods=['GET'])
-def teams_get():
-    """
-    REST endpoint fro getting team info.
-    """
-    
-    xs, args = dataTable_request_to_sql(request.values)
-    qs = "select * from teams" + xs
-    
-    result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
 
-    recordsTotal = db.query_db('select count(*) from teams')[0]['count(*)']
-    recordsFiltered = db.query_db('select count(*) from teams' + dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
-
-    return { 'success': 1,
-                    'isJson': request.is_json,
-                    'status': 'success',
-                    'recordsTotal': recordsTotal,
-                    'recordsFiltered': recordsFiltered,
-                    'data': result,
-                    'my_team': session.get('my-team', '@@')
-                    }, 200
    
 @app.route('/a/teams/<teamId>/tog-ex', methods=['GET', 'POST'])
 def teams_toggle_exclude(teamId):
@@ -210,22 +189,27 @@ def teams_delete(teamId):
     
     return {'success': 1}, 200
 
-@app.route('/a/teams/<teamId>', methods=['DELETE'])
-def delete_team(teamId):
+@app.route('/a/teams/', methods=['GET'])
+def teams_get():
     """
-    REST endpoint to delete a team by ID.
+    REST endpoint fro getting team info.
     """
     
-    try:
-        qs = 'delete from teams where teamId=?'
-        db.query_db(qs, [teamId])
-        db.get_db().commit()
-    except Exception as e:
-        return {'success': 0, 'errors': [e.args[0]] }, 500
-        
-    return {'success': 1,
+    xs, args = dataTable_request_to_sql(request.values)
+    qs = "select * from teams" + xs
+    
+    result = [db.row_to_dict(r) for r in db.query_db(qs, args)]
+
+    recordsTotal = db.query_db('select count(*) from teams')[0]['count(*)']
+    recordsFiltered = db.query_db('select count(*) from teams' + dataTable_request_to_sql(request.values, search_only=True)[0], args)[0]['count(*)']
+
+    return { 'success': 1,
+                    'isJson': request.is_json,
                     'status': 'success',
-                    'data': {}
+                    'recordsTotal': recordsTotal,
+                    'recordsFiltered': recordsFiltered,
+                    'data': result,
+                    'my_team': session.get('my-team', '@@')
                     }, 200
 
 # ------------------------------------------------------------------------------------------------------
