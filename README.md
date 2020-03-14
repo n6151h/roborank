@@ -89,6 +89,11 @@ flask run
 
 * In your browser, navigate to `http://localhost:5000/` to use *roborank*
 
+
+### Instructional Video(s)
+* Installing RoboRank from scratch (coming soon ...)
+* [Updating and starting up RoboRank](https://youtu.be/jMxSTqzDbyg)
+
 ### Command Line Utility (CLU) 
 
 This was written mainly to test the scoring logic without having to deal with entering data into 
